@@ -1,0 +1,32 @@
+{
+    "name": "weareferal/remote-services",
+    "description": "Backend module for remote sync and remote backup",
+    "type": "craft-module",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Timmy O'Mahony",
+            "homepage": "https://weareferal.com"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0-RC1"
+    },
+    "autoload": {
+        "psr-4": {
+            "weareferal\\remoteservices\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Remote Services",
+        "handle": "remote-services",
+        "changelogUrl": "https://raw.githubusercontent.com/weareferal/craft-remote-services/master/CHANGELOG.md",
+        "class": "weareferal\\remoteservices\\RemoteServicesModule"
+    },
+    "suggest": {
+        "aws/aws-sdk-php": "Required for AWS S3 or Digital Ocean Spaces usage",
+        "gliterd/backblaze-b2": "Required for Backblaze usage",
+        "kunalvarma05/dropbox-php-sdk": "Required for Dropbox usage",
+        "google/apiclient": "Required for Google Drive usage"
+    }
+}
