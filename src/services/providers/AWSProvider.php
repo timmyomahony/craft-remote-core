@@ -1,14 +1,14 @@
 <?php
 
-namespace weareferal\remoteservices\providers;
+namespace weareferal\remotecore\services\providers;
 
 use Craft;
 
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
 
-use weareferal\remoteservices\providers\RemoteProvider;
-use weareferal\remoteservices\exceptions\RemoteProviderException;
+use weareferal\remotecore\services\Provider;
+use weareferal\remotecore\exceptions\ProviderException;
 
 
 /**
@@ -20,7 +20,7 @@ use weareferal\remoteservices\exceptions\RemoteProviderException;
  * 
  * @since 1.0.0
  */
-class AWSProvider extends RemoteProvider
+class AWSProvider extends Provider
 {
     private $name = "AWS";
 
@@ -32,10 +32,12 @@ class AWSProvider extends RemoteProvider
      */
     public function isConfigured(): bool
     {
-        $settings = $this->getSettings();
-        return isset($settings['accessKey']) &&
-            isset($settings['secretKey']) &&
-            isset($settings['regionName']);
+        $accessKey = $this->getAccessKey();
+        $secretKey = $this->getSecretKey();
+        $regionName = $this->getRegionName();
+        return isset($accessKey) &&
+            isset($secretKey) &&
+            isset($regionName);
     }
 
     /**
@@ -47,13 +49,12 @@ class AWSProvider extends RemoteProvider
      */
     public function list($filterExtension): array
     {
-        $settings = $settings = $this->getSettings();
         $client = $this->getClient();
         $kwargs = [
-            'Bucket' => $settings['bucketName'],
+            'Bucket' => $this->getBucketName(),
         ];
-        if ($settings['bucketPath']) {
-            $kwargs['Prefix'] = $settings['bucketPath'];
+        if ($this->getBucketPath() !== null) {
+            $kwargs['Prefix'] = $this->getBucketPath();
         }
         $response = $client->listObjects($kwargs);
 
@@ -82,19 +83,17 @@ class AWSProvider extends RemoteProvider
      */
     public function push($path)
     {
-        $settings = $this->getSettings();
         $client = $this->getClient();
         $pathInfo = pathinfo($path);
         $key = $this->getPrefixedKey($pathInfo['basename']);
-
         try {
             $client->putObject([
-                'Bucket' => $settings['bucketName'],
+                'Bucket' => $this->getBucketName(),
                 'Key' => $key,
                 'SourceFile' => $path
             ]);
         } catch (AwsException $exception) {
-            throw new RemoteProviderException($this->createErrorMessage($exception));
+            throw new ProviderException($this->createErrorMessage($exception));
         }
     }
 
@@ -105,18 +104,16 @@ class AWSProvider extends RemoteProvider
      */
     public function pull($key, $localPath)
     {
-        $settings = $settings = $this->getSettings();
         $client = $this->getClient();
         $key = $this->getPrefixedKey($key);
-
         try {
             $client->getObject([
-                'Bucket' => $settings['bucketName'],
+                'Bucket' => $this->getBucketName(),
                 'SaveAs' => $localPath,
                 'Key' => $key,
             ]);
         } catch (AwsException $exception) {
-            throw new RemoteProviderException($this->createErrorMessage($exception));
+            throw new ProviderException($this->createErrorMessage($exception));
         }
 
         return true;
@@ -129,21 +126,19 @@ class AWSProvider extends RemoteProvider
      */
     public function delete($key)
     {
-        $settings = $this->getSettings();
         $client = $this->getClient();
         $key = $this->getPrefixedKey($key);
-        $exists = $client->doesObjectExist($settings['bucketName'], $key);
+        $exists = $client->doesObjectExist($this->getBucketName(), $key);
         if (!$exists) {
-            throw new RemoteProviderException("AWS key does not exist");
+            throw new ProviderException("AWS key does not exist");
         }
-
         try {
             $client->deleteObject([
-                'Bucket' => $settings['bucketName'],
+                'Bucket' => $this->getBucketName(),
                 'Key'    => $key
             ]);
         } catch (AwsException $exception) {
-            throw new RemoteProviderException($this->createErrorMessage($exception));
+            throw new ProviderException($this->createErrorMessage($exception));
         }
     }
 
@@ -156,9 +151,8 @@ class AWSProvider extends RemoteProvider
      */
     private function getPrefixedKey($key): string
     {
-        $settings = $this->getSettings();
-        if ($settings['bucketPath']) {
-            return $settings['bucketPath'] . DIRECTORY_SEPARATOR . $key;
+        if ($this->getBucketPath()) {
+            return $this->getBucketPath() . DIRECTORY_SEPARATOR . $key;
         }
         return $key;
     }
@@ -171,14 +165,13 @@ class AWSProvider extends RemoteProvider
      */
     private function getClient(): S3Client
     {
-        $settings = $this->getSettings();
         $options = [
             'credentials' => array(
-                'key'    => $settings['accessKey'],
-                'secret' => $settings['secretKey']
+                'key'    => $this->getAccessKey(),
+                'secret' => $this->getSecretKey()
             ),
             'version' => 'latest',
-            'region'  => $settings['regionName']
+            'region'  => $this->getRegionName()
         ];
         $endpoint = $this->getEndpoint();
         if ($endpoint) {
@@ -193,26 +186,29 @@ class AWSProvider extends RemoteProvider
      * If using a non-AWS endpoint (like Digital Ocean) we specify the 
      * endpoint used in the client here
      */
-    protected function getEndpoint()
+    protected function getEndpoint(): ?string
     {
         return null;
     }
 
-    /**
-     * Get settings
-     * 
-     * This allows us to overwrite the class easily for other providers like
-     * Digital Ocean that use the exact same API
-     */
-    protected function getSettings()
-    {
-        return [
-            'accessKey' => Craft::parseEnv($this->settings->s3AccessKey),
-            'secretKey' => Craft::parseEnv($this->settings->s3SecretKey),
-            'regionName' => Craft::parseEnv($this->settings->s3RegionName),
-            'bucketName' => Craft::parseEnv($this->settings->s3BucketName),
-            'bucketPath' => Craft::parseEnv($this->settings->s3BucketPath)
-        ];
+    protected function getAccessKey(): ?string {
+        return Craft::parseEnv($this->settings->s3AccessKey); 
+    }
+
+    protected function getSecretKey(): ?string {
+        return Craft::parseEnv($this->settings->s3SecretKey); 
+    }
+
+    protected function getRegionName(): ?string {
+        return Craft::parseEnv($this->settings->s3RegionName); 
+    }
+
+    protected function getBucketName(): ?string {
+        return Craft::parseEnv($this->settings->s3BucketName); 
+    }
+
+    protected function getBucketPath(): ?string {
+        return Craft::parseEnv($this->settings->s3BucketPath); 
     }
 
     /**

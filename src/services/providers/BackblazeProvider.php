@@ -1,13 +1,12 @@
 <?php
 
-namespace weareferal\remoteservices\providers;
+namespace weareferal\remotecore\services\providers;
 
 use Craft;
 
 use BackblazeB2\Client;
 
-use weareferal\remoteservices\services\RemoteProvider;
-use weareferal\remoteservices\exceptions\ProviderException;
+use weareferal\remotecore\services\Provider;
 
 
 /**
@@ -15,7 +14,7 @@ use weareferal\remoteservices\exceptions\ProviderException;
  * 
  * https://github.com/gliterd/backblaze-b2
  */
-class BackblazeProvider extends RemoteProvider
+class BackblazeProvider extends Provider
 {
     /**
      * Is Configured
@@ -113,7 +112,7 @@ class BackblazeProvider extends RemoteProvider
         }
         $exists = $client->fileExists($options);
         if (!$exists) {
-            throw new RemoteProviderException("B2 file does not exist");
+            throw new ProviderException("B2 file does not exist");
         }
         $client->download($options);
     }
@@ -143,7 +142,7 @@ class BackblazeProvider extends RemoteProvider
 
         $exists = $client->fileExists($options);
         if (!$exists) {
-            throw new RemoteProviderException("B2 file does not exist");
+            throw new ProviderException("B2 file does not exist");
         }
 
         $client->deleteFile($options);

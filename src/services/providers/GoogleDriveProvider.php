@@ -1,6 +1,6 @@
 <?php
 
-namespace weareferal\remoteservices\providers;
+namespace weareferal\remotecore\services\providers;
 
 use Craft;
 
@@ -9,8 +9,8 @@ use Google_Exception;
 use Google_Service_Drive;
 use Google_Service_Drive_DriveFile;
 
-use weareferal\remoteservices\providers\RemoteProvider;
-use weareferal\remoteservices\exceptions\RemoteProviderException;
+use weareferal\remotecore\services\Provider;
+use weareferal\remotecore\exceptions\ProviderException;
 
 
 /**
@@ -28,10 +28,8 @@ use weareferal\remoteservices\exceptions\RemoteProviderException;
  * https://github.com/googleapis/google-api-php-client/tree/master/src/Google/Service
  * https://github.com/googleapis/google-api-php-client-services/blob/master/src/Google/Service/Drive.php
  */
-class GoogleDriveProvider extends RemoteProvider
+class GoogleDriveProvider extends Provider
 {
-    private $tokenFileName = "google-drive-remote-sync-token";
-
     /**
      * Is Configured
      * 
@@ -233,9 +231,10 @@ class GoogleDriveProvider extends RemoteProvider
     {
         return Craft::$app->path->getStoragePath()
             . DIRECTORY_SEPARATOR
-            . "remote-sync"
+            . $this->pluginName
             . DIRECTORY_SEPARATOR
             . $this->tokenFileName
+            . "google-drive-{$this->pluginName}-token"
             . ".json";
     }
 

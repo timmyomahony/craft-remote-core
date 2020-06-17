@@ -1,5 +1,5 @@
 {
-    "name": "weareferal/remote-services",
+    "name": "weareferal/remote-core",
     "description": "Backend module for remote sync and remote backup",
     "type": "craft-module",
     "license": "proprietary",
@@ -14,14 +14,14 @@
     },
     "autoload": {
         "psr-4": {
-            "weareferal\\remoteservices\\": "src/"
+            "weareferal\\remotecore\\": "src/"
         }
     },
     "extra": {
-        "name": "Remote Services",
-        "handle": "remote-services",
-        "changelogUrl": "https://raw.githubusercontent.com/weareferal/craft-remote-services/master/CHANGELOG.md",
-        "class": "weareferal\\remoteservices\\RemoteServicesModule"
+        "name": "Remote Core",
+        "handle": "remote-core",
+        "changelogUrl": "https://raw.githubusercontent.com/weareferal/craft-remote-core/master/CHANGELOG.md",
+        "class": "weareferal\\remotecore\\RemoteCoreModule"
     },
     "suggest": {
         "aws/aws-sdk-php": "Required for AWS S3 or Digital Ocean Spaces usage",

@@ -1,6 +1,6 @@
 <?php
 
-namespace weareferal\remoteservices\providers;
+namespace weareferal\remotecore\services\providers;
 
 use Craft;
 
@@ -8,8 +8,7 @@ use Kunnu\Dropbox\Dropbox;
 use Kunnu\Dropbox\DropboxApp;
 use Kunnu\Dropbox\DropboxFile;
 
-use weareferal\remoteservices\providers\RemoteProvider;
-use weareferal\remoteservices\exceptions\RemoteProviderException;
+use weareferal\remotecore\services\Provider;
 
 
 /**
@@ -22,7 +21,7 @@ use weareferal\remoteservices\exceptions\RemoteProviderException;
  * @todo add regex to the folder path setting so users can't enter incorrect
  * values
  */
-class DropboxProvider extends RemoteProvider
+class DropboxProvider extends Provider
 {
     /**
      * Is Configured

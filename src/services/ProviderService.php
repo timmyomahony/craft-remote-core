@@ -1,13 +1,29 @@
-<?php 
+<?php
+namespace weareferal\remotecore\services;
 
-namespace weareferal\remoteservices\providers;
+use weareferal\remotecore\services\providers\AWSProvider;
+use weareferal\remotecore\services\providers\BackblazeProvider;
+use weareferal\remotecore\services\providers\DropboxProvider;
+use weareferal\remotecore\services\providers\GoogleDriveProvider;
+use weareferal\remotecore\services\providers\DigitalOceanProvider;
+
+use weareferal\remotecore\helpers\ZipHelper;
+use weareferal\remotecore\helpers\RemoteFile;
 
 use Craft;
+use craft\base\Component;
+use craft\helpers\FileHelper;
+use craft\helpers\StringHelper;
+
 
 /**
+ * Provider interface
  * 
+ * Methods that all new providers must implement
+ * 
+ * @since 1.0.0
  */
-interface RemoteConfigurable
+interface ProviderInterface
 {
     public function isConfigured(): bool;
     public function isAuthenticated(): bool;
@@ -17,48 +33,8 @@ interface RemoteConfigurable
     public function delete($key);
 }
 
-/**
- * 
- */
-class RemoteFile
-{
-    public $filename;
-    public $datetime;
-    public $label;
-    public $env;
 
-    // Regex to capture/match:
-    // - Site name
-    // - Environment (optional and captured)
-    // - Date (required and captured)
-    // - Random string
-    // - Version
-    // - Extension
-    private static $regex = '/^(?:[a-zA-Z0-9\-]+)\_(?:([a-zA-Z0-9\-]+)\_)?(\d{6}\_\d{6})\_(?:[a-zA-Z0-9]+)\_(?:[v0-9\.]+)\.(?:\w{2,10})$/';
-
-    public function __construct($_filename)
-    {
-        // Extract values from filename
-        preg_match(RemoteFile::$regex, $_filename, $matches);
-        $env = $matches[1];
-        $date = $matches[2];
-        $datetime = date_create_from_format('ymd_Gis', $date);
-        $label = $datetime->format('Y-m-d H:i:s');
-        if ($env) {
-            $label = $label  . ' (' . $env . ')';
-        }
-        $this->filename = $_filename;
-        $this->datetime = $datetime;
-        $this->label = $label;
-        $this->env = $env;
-    }
-}
-
-
-/**
- * 
- */
-abstract class RemoteProvider implements RemoteConfigurable
+abstract class Provider implements ProviderInterface
 {
     /**
      * Plugin settings
@@ -66,10 +42,12 @@ abstract class RemoteProvider implements RemoteConfigurable
      * These settings are passed in from the plugin when our provider service
      * is created
      */
-    protected $settings = [];
+    protected $settings;
+    protected $pluginName;
 
-    function __construct($settings) {
+    function __construct($settings, $pluginName) {
         $this->settings = $settings;
+        $this->pluginName = $pluginName;
     }
 
     /**
@@ -103,16 +81,7 @@ abstract class RemoteProvider implements RemoteConfigurable
      */
     public function listDatabases(): array
     {
-        $filenames = $this->list(".sql");
-        $backups = $this->parseFilenames($filenames);
-        $options = [];
-        foreach ($backups as $i => $backup) {
-            $options[$i] = [
-                "label" => $backup->label,
-                "value" => $backup->filename
-            ];
-        }
-        return $options;
+        return RemoteFile::createArray($this->list(".sql"));
     }
 
     /**
@@ -123,16 +92,7 @@ abstract class RemoteProvider implements RemoteConfigurable
      */
     public function listVolumes(): array
     {
-        $filenames = $this->list('.zip');
-        $backups = $this->parseFilenames($filenames);
-        $options = [];
-        foreach ($backups as $i => $backup) {
-            $options[$i] = [
-                "label" => $backup->label,
-                "value" => $backup->filename
-            ];
-        }
-        return $options;
+        return RemoteFile::createArray($this->list(".zip"));
     }
 
     /**
@@ -143,7 +103,7 @@ abstract class RemoteProvider implements RemoteConfigurable
      */
     public function pushDatabase()
     {
-        $filename = $this->getFilename();
+        $filename = $this->createFilename();
         $path = $this->createDatabaseDump($filename);
         $this->push($path);
         unlink($path);
@@ -159,7 +119,7 @@ abstract class RemoteProvider implements RemoteConfigurable
      */
     public function pushVolumes(): string
     {
-        $filename = $this->getFilename();
+        $filename = $this->createFilename();
         $path = $this->createVolumesZip($filename);
         $this->push($path);
         unlink($path);
@@ -193,9 +153,11 @@ abstract class RemoteProvider implements RemoteConfigurable
     }
 
     /**
-     * Pull and restore a particular remote volume file.
+     * Pull Volume
      * 
-     * @param string $filename the file to restore
+     * Pull and restore a particular remote volume .zip file.
+     * 
+     * @param string The file to restore
      * @since 1.0.0
      */
     public function pullVolume($filename)
@@ -213,95 +175,29 @@ abstract class RemoteProvider implements RemoteConfigurable
     }
 
     /**
-     * Delete file
+     * Delete Database
      * 
-     * Delete a single database file remotely.
+     * Delete a remote database .sql file
      * 
-     * @param string $filename the file to delete
+     * @param string The filename to delete
      * @since 1.0.0
      */
     public function deleteDatabase($filename)
     {
-        return $this->delete($filename);
+        $this->delete($filename);
     }
 
     /**
-     * Delete file
+     * Delete Volume
      * 
-     * Delete a single volume file remotely.
+     * Delete a remote volume .zip file
      * 
-     * @param string $filename the file to delete
+     * @param string The filename to delete
      * @since 1.0.0
      */
     public function deleteVolume($filename)
     {
-        return $this->delete($filename);
-    }
-
-    /**
-     * Prune database files
-     * 
-     * Delete all "old" database files
-     * 
-     * @param boolean $dryRun if true do everything except actually deleting
-     * @return array the deleted files
-     * @since 1.2.0
-     */
-    public function pruneDatabases($dryRun = false)
-    {
-        $filenames = $this->list(".sql");
-        return $this->prune($filenames, $dryRun);
-    }
-
-    /**
-     * Prune volume files
-     * 
-     * Delete all "old" database files
-     * 
-     * @param boolean $dryRun if true do everything except actually deleting
-     * @return array the deleted files
-     * @since 1.2.0
-     */
-    public function pruneVolumes($dryRun = false)
-    {
-        $filenames = $this->list(".zip");
-        return $this->prune($filenames, $dryRun);
-    }
-
-    /**
-     * Prune files
-     * 
-     * Delete "old" remote files. This operation relies on "prune" from the
-     * settings. The algorithm is simple, delete all files > than the sync
-     * limit. In other words, if the sync limit is 5 and we have 9 backups,
-     * delete the 6th-9th backups keeping the 5 most recent.
-     * 
-     * @param array $filenames an array of remote filenames
-     * @param boolean $dryRun if true do everything except actually deleting
-     * @return array the deleted files (or empty array)
-     * @since 1.2.0
-     */
-    private function prune($filenames, $dryRun = false)
-    {
-        $deleted = [];
-        $backups = $this->parseFilenames($filenames);
-        $settings = $this->getSettings();
-        if (!$settings->prune) {
-            Craft::warning("Pruning disabled" . PHP_EOL, 'remote-sync');
-            return $deleted;
-        } else if (count($backups) < $settings->pruneLimit) {
-            Craft::warning("Skipping file pruning: files < prune limit" . PHP_EOL, 'remote-sync');
-            return $deleted;
-        }
-        $backups = array_slice($backups, $settings->pruneLimit, count($backups));
-        foreach ($backups as $backup) {
-            $filename = $backup->filename;
-            if (!$dryRun) {
-                $this->delete($backup->filename);
-                array_push($deleted, $filename);
-            }
-        }
-        return $deleted;
+        $this->delete($filename);
     }
 
     /**
@@ -338,7 +234,7 @@ abstract class RemoteProvider implements RemoteConfigurable
     }
 
     /**
-     * Restore volumes
+     * Restore Volumes Zip
      * 
      * Unzips volumes to a temporary path and then moves them to the "web" 
      * folder.
@@ -372,13 +268,13 @@ abstract class RemoteProvider implements RemoteConfigurable
     }
 
     /**
-     * Create database sql dump
+     * Create Database Dump
      * 
      * Uses the underlying Craft 3 "backup/db" function to create a new database
-     * backup in the sync folder.
+     * backup in local folder.
      * 
-     * @param string $filename the file name to give the new backup
-     * @return string $path the 
+     * @param string The file name to give the new backup
+     * @return string The file path to the new database dump
      * @since 1.0.0
      */
     private function createDatabaseDump($filename): string
@@ -389,16 +285,16 @@ abstract class RemoteProvider implements RemoteConfigurable
     }
 
     /**
-     * Return a unique filename for a backup file
+     * Create Filename
      * 
-     * Based on getBackupFilePath():
+     * Create a unique filename for a backup file. Based on getBackupFilePath():
      * 
      * https://github.com/craftcms/cms/tree/master/src/db/Connection.php
      * 
-     * @return string The unique backup filename
+     * @return string The unique filename
      * @since 1.0.0
      */
-    private function getFilename(): string
+    private function createFilename(): string
     {
         $currentVersion = 'v' . Craft::$app->getVersion();
         $systemName = FileHelper::sanitizeFilename(Craft::$app->getInfo()->name, ['asciiOnly' => true]);
@@ -408,39 +304,17 @@ abstract class RemoteProvider implements RemoteConfigurable
     }
 
     /**
-     * Return a chronologically sorted array of objects
+     * Get Local Directory
      * 
-     * @param string[] Array of filenames
-     * @return array[] Array of objects
-     * @since 1.0.0
-     */
-    private function parseFilenames($filenames): array
-    {
-        $backups = [];
-
-        foreach ($filenames as $filename) {
-            array_push($backups, new RemoteFile($filename));
-        }
-
-        uasort($backups, function ($b1, $b2) {
-            return $b1->datetime <=> $b2->datetime;
-        });
-
-        return array_reverse($backups);
-    }
-
-    /**
-     * Get local directory
+     * Return (or creates) the local directory we use to store temporary files.
+     * This is a separate folder to the default Craft backup folder.
      * 
-     * Return (or creates) the local "web/sync" directory we use for synced
-     * files. This is a separate folder to the default Craft backup folder.
-     * 
-     * @return string $dir a path to the directory
+     * @return string The path to the local directory
      * @since 1.0.0
      */
     protected function getLocalDir()
     {
-        $dir = Craft::$app->path->getStoragePath() . "/remote-sync";
+        $dir = Craft::$app->path->getStoragePath() . "/" . $this->pluginName;
         if (!file_exists($dir)) {
             mkdir($dir, 0777, true);
         }
@@ -448,10 +322,12 @@ abstract class RemoteProvider implements RemoteConfigurable
     }
 
     /**
-     * Filter filenames by extension
+     * Filter By Extension
      * 
-     * @param string $extension the file extension to filter by
-     * @return array list of filtered filenames
+     * Filter an array of filenames by their extension (.sql or .zip)
+     * 
+     * @param string The file extension to filter by
+     * @return array The filtered filenames
      */
     protected function filterByExtension($filenames, $extension)
     {
@@ -465,7 +341,7 @@ abstract class RemoteProvider implements RemoteConfigurable
     }
 
     /**
-     * Get settings
+     * Get Settings
      * 
      * This gives any implementing classes the ability to adjust settings
      * 
@@ -475,5 +351,34 @@ abstract class RemoteProvider implements RemoteConfigurable
     protected function getSettings()
     {
         return $this->settings;
+    }
+}
+
+/**
+ * Provider Service
+ * 
+ * The job of the provider service is to simply return an instance of the
+ * users remote backend provider (Google Drive, Dropbox, ...) based on their
+ * plugin settings.
+ * 
+ * @return Provider An instance (not class) of the provider
+ * @since 1.0.0
+ */
+class ProviderService extends Component {
+    public static function create($settings, $pluginName) {
+        $ProviderClass = null;
+        switch ($settings->cloudProvider) {
+            case "s3":
+                $ProviderClass = AWSProvider::class;
+            case "b2":
+                $ProviderClass = BackblazeProvider::class;
+            case "google":
+                $ProviderClass = GoogleDriveProvider::class;
+            case "dropbox":
+                $ProviderClass = DropboxProvider::class;
+            case "do":
+                $ProviderClass = DigitalOceanProvider::class;
+        }
+        return new $ProviderClass($settings, $pluginName);
     }
 }
