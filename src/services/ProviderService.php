@@ -103,10 +103,15 @@ abstract class Provider implements ProviderInterface
      */
     public function pushDatabase()
     {
+        $settings = $this->getSettings();
         $filename = $this->createFilename();
         $path = $this->createDatabaseDump($filename);
         $this->push($path);
-        unlink($path);
+
+        if (! $settings->keepLocal) {
+            unlink($path);
+        }
+
         return $filename;
     }
 
@@ -119,10 +124,15 @@ abstract class Provider implements ProviderInterface
      */
     public function pushVolumes(): string
     {
+        $settings = $this->getSettings();
         $filename = $this->createFilename();
         $path = $this->createVolumesZip($filename);
         $this->push($path);
-        unlink($path);
+
+        if (! $settings->keepLocal) {
+            unlink($path);
+        }
+
         return $filename;
     }
 
