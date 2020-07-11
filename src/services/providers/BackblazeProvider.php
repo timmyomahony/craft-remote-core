@@ -4,174 +4,44 @@ namespace weareferal\remotecore\services\providers;
 
 use Craft;
 
-use BackblazeB2\Client;
-
-use weareferal\remotecore\services\ProviderService;
-use weareferal\remotecore\services\ProviderInterface;
+use weareferal\remotecore\services\providers\AWSProvider;
 
 
 /**
- * Backblaze provider
+ * Backblaze B2 provider
  * 
- * https://github.com/gliterd/backblaze-b2
+ * The Backblaze B2 backend is compatible with AWS's API so we can use the
+ * official AWS PHP SDK as outlined:
+ * 
+ * https://help.backblaze.com/hc/en-us/articles/360047425453
  */
-class BackblazeProvider extends ProviderService
+class BackblazeProvider extends AWSProvider
 {
     public $name = "Backblaze B2";
 
-    /**
-     * Is Configured
-     * 
-     * @return boolean whether this provider is properly configured
-     * @since 1.3.0
-     */
-    public function isConfigured(): bool
+    protected function getEndpoint(): ?string
     {
-        return isset($this->plugin->settings->b2MasterKeyID) &&
-            isset($this->plugin->settings->b2MasterAppKey);
+        $regionName = Craft::parseEnv($this->plugin->settings->b2RegionName);
+        return "https://s3.{$regionName}.backblazeb2.com";
     }
 
-    /**
-     * Return B2 files
-     * 
-     * https://github.com/gliterd/backblaze-b2#list-all-files
-     * 
-     * @param string $extension The file extension to filter the results by
-     * @return array[string] An array of filenames returned from B2
-     * @since 1.3.0
-     */
-    public function list($filterExtension): array
-    {
-        $b2BucketName = Craft::parseEnv($this->plugin->settings->b2BucketName);
-        $b2BucketPath = Craft::parseEnv($this->plugin->settings->b2BucketPath);
-        $client = $this->getClient();
-
-        $options = [
-            'BucketName' => $b2BucketName
-        ];
-        if ($b2BucketPath) {
-            $options['Prefix'] = $b2BucketPath;
-        }
-
-        $files = $client->listFiles($options);
-
-        $filenames = [];
-        foreach ($files as $file) {
-            array_push($filenames, basename($file->getName()));
-        }
-
-        if ($filterExtension) {
-            return $this->filterByExtension($filenames, $filterExtension);
-        }
-
-        return $filenames;
+    protected function getAccessKey(): ?string {
+        return Craft::parseEnv($this->plugin->settings->b2MasterKeyID); 
     }
 
-    /**
-     * Push a file path to B2
-     * 
-     * https://github.com/gliterd/backblaze-b2#file-upload
-     *  
-     * @param string $path The full filesystem path to file
-     * @since 1.3.0
-     */
-    public function push($path)
-    {
-        $b2BucketName = Craft::parseEnv($this->plugin->settings->b2BucketName);
-        $client = $this->getClient();
-        $pathInfo = pathinfo($path);
-        $filename = $this->getPrefixedFilename($pathInfo['basename']);
-        $client->upload([
-            'BucketName' => $b2BucketName,
-            'FileName' => $filename,
-            'Body' => fopen($path, 'r')
-        ]);
+    protected function getSecretKey(): ?string {
+        return Craft::parseEnv($this->plugin->settings->b2MasterAppKey); 
     }
 
-    /**
-     * Pull a file path from B2
-     * 
-     * https://github.com/gliterd/backblaze-b2#file-download
-     * 
-     * @since 1.3.0
-     */
-    public function pull($filename, $localPath)
-    {
-        $b2BucketName = Craft::parseEnv($this->plugin->settings->b2BucketName);
-        $b2BucketPath = Craft::parseEnv($this->plugin->settings->b2BucketPath);
-        $client = $this->getClient();
-        $filename = $this->getPrefixedFilename($filename);
-        $options = [
-            'BucketName' => $b2BucketName,
-            'FileName' => $filename,
-            'SaveAs' => $localPath
-        ];
-        if ($b2BucketPath) {
-            $options['Prefix'] = $b2BucketPath;
-        }
-        $exists = $client->fileExists($options);
-        if (!$exists) {
-            throw new ProviderException("B2 file does not exist");
-        }
-        $client->download($options);
+    protected function getRegionName(): ?string {
+        return Craft::parseEnv($this->plugin->settings->b2RegionName); 
     }
 
-    /**
-     * Delete a remote B2 file
-     * 
-     * https://github.com/gliterd/backblaze-b2#file-delete
-     * 
-     * @since 1.3.0
-     */
-    public function delete($filename)
-    {
-        $b2BucketName = Craft::parseEnv($this->plugin->settings->b2BucketName);
-        $b2BucketPath = Craft::parseEnv($this->plugin->settings->b2BucketPath);
-        $client = $this->getClient();
-        $filename = $this->getPrefixedFilename($filename);
-
-        $options = [
-            'BucketName' => $b2BucketName,
-            'FileName' => $filename
-        ];
-        if ($b2BucketPath) {
-            $options['Prefix'] = $b2BucketPath;
-        }
-
-        $exists = $client->fileExists($options);
-        if (!$exists) {
-            throw new ProviderException("B2 file does not exist");
-        }
-
-        $client->deleteFile($options);
+    protected function getBucketName(): ?string {
+        return Craft::parseEnv($this->plugin->settings->b2BucketName); 
     }
 
-    /**
-     * Return the Backblaze file path, including any prefix folders
-     * 
-     * @param string $key The key for the key
-     * @return string The prefixed key
-     * @since 1.3.0
-     */
-    private function getPrefixedFilename($key): string
-    {
-        $b2BucketPath = Craft::parseEnv($this->plugin->settings->b2BucketPath);
-        if ($b2BucketPath) {
-            return $b2BucketPath . DIRECTORY_SEPARATOR . $key;
-        }
-        return $key;
-    }
-
-    /**
-     * Return a useable B2 client object
-     * 
-     * @return Client The B2 client object
-     * @since 1.3.0
-     */
-    private function getClient(): Client
-    {
-        $b2MasterKeyID = Craft::parseEnv($this->plugin->settings->b2MasterKeyID);
-        $b2MasterAppKey = Craft::parseEnv($this->plugin->settings->b2MasterAppKey);
-        return new Client($b2MasterKeyID, $b2MasterAppKey, []);
+    protected function getBucketPath(): ?string {
+        return Craft::parseEnv($this->plugin->settings->b2BucketPath); 
     }
 }

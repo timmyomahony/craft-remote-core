@@ -25,6 +25,7 @@ abstract class Settings extends Model
     // Backblaze configuration settings
     public $b2MasterKeyID;
     public $b2MasterAppKey;
+    public $b2RegionName;
     public $b2BucketName;
     public $b2BucketPath;
 
@@ -70,7 +71,7 @@ abstract class Settings extends Model
                 }
             ],
             [
-                ['b2MasterKeyID', 'b2MasterAppKey', 'b2BucketName'],
+                ['b2MasterKeyID', 'b2MasterAppKey', 'b2RegionName', 'b2BucketName'],
                 'required',
                 'when' => function ($model) {
                     return $model->cloudProvider == 'b2' & $model->enabled == 1;
@@ -106,7 +107,7 @@ abstract class Settings extends Model
                 [
                     'cloudProvider',
                     's3AccessKey', 's3SecretKey', 's3BucketName', 's3RegionName', 's3BucketPath',
-                    'b2MasterKeyID', 'b2MasterAppKey', 'b2BucketName', 'b2BucketPath',
+                    'b2MasterKeyID', 'b2MasterAppKey', 'b2RegionName', 'b2BucketName', 'b2BucketPath',
                     'googleClientId', 'googleClientSecret', 'googleProjectName', 'googleAuthRedirect', 'googleDriveFolderId',
                     'dropboxAppKey', 'dropboxSecretKey', 'dropboxAccessToken', 'dropboxFolder',
                     'doAccessKey', 'doSecretKey', 'doSpacesName', 'doRegionName', 'doSpacesPath',
