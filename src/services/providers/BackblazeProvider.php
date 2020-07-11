@@ -6,7 +6,8 @@ use Craft;
 
 use BackblazeB2\Client;
 
-use weareferal\remotecore\services\Provider;
+use weareferal\remotecore\services\ProviderService;
+use weareferal\remotecore\services\ProviderInterface;
 
 
 /**
@@ -14,8 +15,10 @@ use weareferal\remotecore\services\Provider;
  * 
  * https://github.com/gliterd/backblaze-b2
  */
-class BackblazeProvider extends Provider
+class BackblazeProvider extends ProviderService
 {
+    public $name = "Backblaze B2";
+
     /**
      * Is Configured
      * 
@@ -24,9 +27,8 @@ class BackblazeProvider extends Provider
      */
     public function isConfigured(): bool
     {
-        $settings = $this->getSettings();
-        return isset($settings->b2MasterKeyID) &&
-            isset($settings->b2MasterAppKey);
+        return isset($this->plugin->settings->b2MasterKeyID) &&
+            isset($this->plugin->settings->b2MasterAppKey);
     }
 
     /**
@@ -40,9 +42,8 @@ class BackblazeProvider extends Provider
      */
     public function list($filterExtension): array
     {
-        $settings = $this->getSettings();
-        $b2BucketName = Craft::parseEnv($settings->b2BucketName);
-        $b2BucketPath = Craft::parseEnv($settings->b2BucketPath);
+        $b2BucketName = Craft::parseEnv($this->plugin->settings->b2BucketName);
+        $b2BucketPath = Craft::parseEnv($this->plugin->settings->b2BucketPath);
         $client = $this->getClient();
 
         $options = [
@@ -76,8 +77,7 @@ class BackblazeProvider extends Provider
      */
     public function push($path)
     {
-        $settings = $this->getSettings();
-        $b2BucketName = Craft::parseEnv($settings->b2BucketName);
+        $b2BucketName = Craft::parseEnv($this->plugin->settings->b2BucketName);
         $client = $this->getClient();
         $pathInfo = pathinfo($path);
         $filename = $this->getPrefixedFilename($pathInfo['basename']);
@@ -97,9 +97,8 @@ class BackblazeProvider extends Provider
      */
     public function pull($filename, $localPath)
     {
-        $settings = $this->getSettings();
-        $b2BucketName = Craft::parseEnv($settings->b2BucketName);
-        $b2BucketPath = Craft::parseEnv($settings->b2BucketPath);
+        $b2BucketName = Craft::parseEnv($this->plugin->settings->b2BucketName);
+        $b2BucketPath = Craft::parseEnv($this->plugin->settings->b2BucketPath);
         $client = $this->getClient();
         $filename = $this->getPrefixedFilename($filename);
         $options = [
@@ -126,9 +125,8 @@ class BackblazeProvider extends Provider
      */
     public function delete($filename)
     {
-        $settings = $this->getSettings();
-        $b2BucketName = Craft::parseEnv($settings->b2BucketName);
-        $b2BucketPath = Craft::parseEnv($settings->b2BucketPath);
+        $b2BucketName = Craft::parseEnv($this->plugin->settings->b2BucketName);
+        $b2BucketPath = Craft::parseEnv($this->plugin->settings->b2BucketPath);
         $client = $this->getClient();
         $filename = $this->getPrefixedFilename($filename);
 
@@ -157,8 +155,7 @@ class BackblazeProvider extends Provider
      */
     private function getPrefixedFilename($key): string
     {
-        $settings = $this->getSettings();
-        $b2BucketPath = Craft::parseEnv($settings->b2BucketPath);
+        $b2BucketPath = Craft::parseEnv($this->plugin->settings->b2BucketPath);
         if ($b2BucketPath) {
             return $b2BucketPath . DIRECTORY_SEPARATOR . $key;
         }
@@ -173,9 +170,8 @@ class BackblazeProvider extends Provider
      */
     private function getClient(): Client
     {
-        $settings = $this->getSettings();
-        $b2MasterKeyID = Craft::parseEnv($settings->b2MasterKeyID);
-        $b2MasterAppKey = Craft::parseEnv($settings->b2MasterAppKey);
+        $b2MasterKeyID = Craft::parseEnv($this->plugin->settings->b2MasterKeyID);
+        $b2MasterAppKey = Craft::parseEnv($this->plugin->settings->b2MasterAppKey);
         return new Client($b2MasterKeyID, $b2MasterAppKey, []);
     }
 }

@@ -8,7 +8,8 @@ use Kunnu\Dropbox\Dropbox;
 use Kunnu\Dropbox\DropboxApp;
 use Kunnu\Dropbox\DropboxFile;
 
-use weareferal\remotecore\services\Provider;
+use weareferal\remotecore\services\ProviderService;
+use weareferal\remotecore\services\ProviderInterface;
 
 
 /**
@@ -21,8 +22,10 @@ use weareferal\remotecore\services\Provider;
  * @todo add regex to the folder path setting so users can't enter incorrect
  * values
  */
-class DropboxProvider extends Provider
+class DropboxProvider extends ProviderService implements ProviderInterface
 {
+    public $name = "Dropbox";
+
     /**
      * Is Configured
      * 
@@ -31,10 +34,9 @@ class DropboxProvider extends Provider
      */
     public function isConfigured(): bool
     {
-        $settings = $this->getSettings();
-        return isset($settings->dropboxAppKey) &&
-            isset($settings->dropboxSecretKey) &&
-            isset($settings->dropboxAccessToken);
+        return isset($this->plugin->settings->dropboxAppKey) &&
+            isset($this->plugin->settings->dropboxSecretKey) &&
+            isset($this->plugin->settings->dropboxAccessToken);
     }
 
     /**
@@ -49,8 +51,7 @@ class DropboxProvider extends Provider
      */
     public function list($filterExtension): array
     {
-        $settings = $this->getSettings();
-        $dropboxFolder = Craft::parseEnv($settings->dropboxFolder);
+        $dropboxFolder = Craft::parseEnv($this->plugin->settings->dropboxFolder);
 
         $dstPath = "/";
         if ($dropboxFolder) {
@@ -131,8 +132,7 @@ class DropboxProvider extends Provider
      */
     private function getDestinationPath($filename): string
     {
-        $settings = $this->getSettings();
-        $dropboxFolder = Craft::parseEnv($settings->dropboxFolder);
+        $dropboxFolder = Craft::parseEnv($this->plugin->settings->dropboxFolder);
         if ($dropboxFolder) {
             return $dropboxFolder . DIRECTORY_SEPARATOR . $filename;
         }
@@ -147,10 +147,9 @@ class DropboxProvider extends Provider
      */
     private function getClient()
     {
-        $settings = $this->getSettings();
-        $dropboxAppKey = Craft::parseEnv($settings->dropboxAppKey);
-        $dropboxSecretKey = Craft::parseEnv($settings->dropboxSecretKey);
-        $dropboxAccessToken = Craft::parseEnv($settings->dropboxAccessToken);
+        $dropboxAppKey = Craft::parseEnv($this->plugin->settings->dropboxAppKey);
+        $dropboxSecretKey = Craft::parseEnv($this->plugin->settings->dropboxSecretKey);
+        $dropboxAccessToken = Craft::parseEnv($this->plugin->settings->dropboxAccessToken);
         $app = new DropboxApp($dropboxAppKey, $dropboxSecretKey, $dropboxAccessToken);
         return new Dropbox($app);
     }

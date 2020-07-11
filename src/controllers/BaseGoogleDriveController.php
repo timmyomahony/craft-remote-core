@@ -13,14 +13,19 @@ use weareferal\remotecore\exceptions\ProviderException;
 use weareferal\remotecore\RemoteCore;
 
 
-class GoogleDriveController extends Controller
+abstract class BaseGoogleDriveController extends Controller
 {
+
+    protected function pluginInstance() {
+        return null;
+    }
+
     /**
      * Require the plugin to have been set as enabled in the settings
      */
     public function requirePluginEnabled()
     {
-        if (!RemoteCore::getInstance()->getSettings()->enabled) {
+        if (!$this->pluginInstance()->getSettings()->enabled) {
             throw new BadRequestHttpException('Plugin is not enabled');
         }
     }
@@ -31,7 +36,7 @@ class GoogleDriveController extends Controller
      */
     public function requireGoogleDriveProvider()
     {
-        if (!RemoteCore::getInstance()->getSettings()->cloudProvider == 'google') {
+        if (!$this->pluginInstance()->getSettings()->cloudProvider == 'google') {
             throw new BadRequestHttpException('Google Drive provider not selected');
         }
     }
@@ -47,9 +52,9 @@ class GoogleDriveController extends Controller
         $this->requirePluginEnabled();
         $this->requireGoogleDriveProvider();
 
-        $plugin = RemoteCore::getInstance();
-        $service = $plugin->remotecore;
-        $client = $service->getClient();
+        $plugin = $this->pluginInstance();
+        $provider = $this->pluginInstance()->prodiver;
+        $client = $provider->getClient();
         $isExpired = $client->isAccessTokenExpired();
 
         // Redirect back to settings page
@@ -93,7 +98,7 @@ class GoogleDriveController extends Controller
         $this->requirePluginEnabled();
         $this->requireGoogleDriveProvider();
 
-        $plugin = RemoteCore::getInstance();
+        $plugin = $this->pluginInstance();
 
         $code = Craft::$app->getRequest()->get('code');
         if (!$code) {

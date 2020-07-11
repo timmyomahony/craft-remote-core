@@ -5,6 +5,12 @@ use weareferal\remotecore\RemoteCore;
 use weareferal\remotecore\helpers\ZipHelper;
 use weareferal\remotecore\helpers\RemoteFile;
 
+use weareferal\remotecore\services\providers\AWSProvider;
+use weareferal\remotecore\services\providers\BackblazeProvider;
+use weareferal\remotecore\services\providers\DropboxProvider;
+use weareferal\remotecore\services\providers\GoogleDriveProvider;
+use weareferal\remotecore\services\providers\DigitalOceanProvider;
+
 use Craft;
 use craft\base\Component;
 use craft\helpers\FileHelper;
@@ -29,10 +35,11 @@ interface ProviderInterface
 }
 
 
-abstract class Provider extends Component implements ProviderInterface
+abstract class ProviderService extends Component implements ProviderInterface
 {
 
     protected $plugin;
+    public $name;
 
     function __construct($plugin) {
         $this->plugin = $plugin;
@@ -348,6 +355,9 @@ abstract class Provider extends Component implements ProviderInterface
      */
     protected function getSettings()
     {
-        return $this->getSettings();
+        return $this->plugin->getSettings();
     }
+
+    
 }
+
