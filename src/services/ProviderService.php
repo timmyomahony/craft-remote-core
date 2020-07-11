@@ -35,6 +35,11 @@ interface ProviderInterface
 }
 
 
+/**
+ * Base Prodiver
+ * 
+ * A remote cloud backend provider for sending and receiving files to and from
+ */
 abstract class ProviderService extends Component implements ProviderInterface
 {
 

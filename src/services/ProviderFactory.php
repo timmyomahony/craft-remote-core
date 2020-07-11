@@ -12,12 +12,13 @@ use craft\base\Component;
 
 
 /**
+ * Provider Factory
  * 
+ * A factory service that returns a provider intance based on the calling
+ * plugins "cloudProvider" setting.
  */
 class ProviderFactory extends Component {
     public function create($plugin) {
-        Craft::debug('Creating provider for: ' . $plugin->name, 'remote-core');
-        Craft::debug('Cloud provider: ' . $plugin->getSettings()->cloudProvider, 'remote-core');
         $ProviderClass = null;
         switch ($plugin->getSettings()->cloudProvider) {
             case "s3":
@@ -30,11 +31,9 @@ class ProviderFactory extends Component {
                 $ProviderClass = GoogleDriveProvider::class;
                 break;
             case "dropbox":
-                Craft::debug('Test Dropbox', 'remote-core');
                 $ProviderClass = DropboxProvider::class;
                 break;
             case "do":
-                Craft::debug('Test Digital Ocean', 'remote-core');
                 $ProviderClass = DigitalOceanProvider::class;
                 break;
         }
