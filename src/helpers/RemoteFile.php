@@ -2,6 +2,7 @@
 
 namespace weareferal\remotecore\helpers;
 
+use weareferal\remotecore\helpers\TimeHelper;
 
 /**
  * Remote file
@@ -32,6 +33,7 @@ class RemoteFile
         $env = $matches[1];
         $date = $matches[2];
         $datetime = date_create_from_format('ymd_Gis', $date);
+        $timesince = TimeHelper::time_since($datetime->getTimestamp());
         $label = $datetime->format('Y-m-d H:i:s');
         if ($env) {
             $label = $label  . ' (' . $env . ')';
@@ -39,6 +41,7 @@ class RemoteFile
         $this->filename = $_filename;
         $this->datetime = $datetime;
         $this->label = $label;
+        $this->timesince = $timesince;
         $this->env = $env;
     }
 

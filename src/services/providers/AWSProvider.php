@@ -7,7 +7,7 @@ use Craft;
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
 
-use weareferal\remotecore\services\Provider;
+use weareferal\remotecore\services\ProviderService;
 use weareferal\remotecore\exceptions\ProviderException;
 
 
@@ -20,9 +20,9 @@ use weareferal\remotecore\exceptions\ProviderException;
  * 
  * @since 1.0.0
  */
-class AWSProvider extends Provider
+class AWSProvider extends ProviderService
 {
-    private $name = "AWS";
+    public $name = "AWS";
 
     /**
      * Provider is configured
@@ -192,23 +192,23 @@ class AWSProvider extends Provider
     }
 
     protected function getAccessKey(): ?string {
-        return Craft::parseEnv($this->settings->s3AccessKey); 
+        return Craft::parseEnv($this->plugin->settings->s3AccessKey); 
     }
 
     protected function getSecretKey(): ?string {
-        return Craft::parseEnv($this->settings->s3SecretKey); 
+        return Craft::parseEnv($this->plugin->settings->s3SecretKey); 
     }
 
     protected function getRegionName(): ?string {
-        return Craft::parseEnv($this->settings->s3RegionName); 
+        return Craft::parseEnv($this->plugin->settings->s3RegionName); 
     }
 
     protected function getBucketName(): ?string {
-        return Craft::parseEnv($this->settings->s3BucketName); 
+        return Craft::parseEnv($this->plugin->settings->s3BucketName); 
     }
 
     protected function getBucketPath(): ?string {
-        return Craft::parseEnv($this->settings->s3BucketPath); 
+        return Craft::parseEnv($this->plugin->settings->s3BucketPath); 
     }
 
     /**
