@@ -145,7 +145,7 @@ abstract class ProviderService extends Component implements ProviderInterface
     {
         // Before pulling a database, backup the local
         $settings = $this->getSettings();
-        if ($settings->keepEmergencyBackup) {
+        if (property_exists($settings, 'keepEmergencyBackup') && $settings->keepEmergencyBackup) {
             $this->createDatabaseDump("emergency-backup");
         }
 
@@ -174,7 +174,7 @@ abstract class ProviderService extends Component implements ProviderInterface
     {
         // Before pulling volumes, backup the local
         $settings = $this->getSettings();
-        if ($settings->keepEmergencyBackup) {
+        if (property_exists($settings, 'keepEmergencyBackup') && $settings->keepEmergencyBackup) {
             $this->createVolumesZip("emergency-backup");
         }
 
