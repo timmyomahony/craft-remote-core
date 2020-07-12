@@ -245,7 +245,7 @@
 
     {% if isConfigured and not isAuthenticated %}
         <div>
-            <a href="/admin/remote-core/google-drive/auth" class="btn">{{"Authenticate with Google Drive"|t}}</a>
+            <a href="/admin/{{ plugin.getHandle() }}/google-drive/auth" class="btn">{{"Authenticate with Google Drive"|t}}</a>
         </div>
     {% endif %}
 </div>

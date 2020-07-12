@@ -229,10 +229,9 @@ class GoogleDriveProvider extends ProviderService
     {
         return Craft::$app->path->getStoragePath()
             . DIRECTORY_SEPARATOR
-            . $this->pluginName
+            . $this->plugin->getHandle()
             . DIRECTORY_SEPARATOR
-            . $this->tokenFileName
-            . "google-drive-{$this->pluginName}-token"
+            . "google-drive-{$this->plugin->getHandle()}-token"
             . ".json";
     }
 

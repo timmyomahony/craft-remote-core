@@ -324,7 +324,7 @@ abstract class ProviderService extends Component implements ProviderInterface
      */
     protected function getLocalDir()
     {
-        $dir = Craft::$app->path->getStoragePath() . "/" . $this->pluginName;
+        $dir = Craft::$app->path->getStoragePath() . "/" . $this->plugin->getHandle();
         if (!file_exists($dir)) {
             mkdir($dir, 0777, true);
         }

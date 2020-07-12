@@ -10,7 +10,6 @@ use craft\web\Controller;
 use craft\web\View;
 
 use weareferal\remotecore\exceptions\ProviderException;
-use weareferal\remotecore\RemoteCore;
 
 
 abstract class BaseGoogleDriveController extends Controller
@@ -53,7 +52,7 @@ abstract class BaseGoogleDriveController extends Controller
         $this->requireGoogleDriveProvider();
 
         $plugin = $this->pluginInstance();
-        $provider = $this->pluginInstance()->prodiver;
+        $provider = $this->pluginInstance()->provider;
         $client = $provider->getClient();
         $isExpired = $client->isAccessTokenExpired();
 
