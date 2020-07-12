@@ -1,6 +1,6 @@
 {
     "name": "weareferal/remote-core",
-    "description": "Backend module for remote sync and remote backup",
+    "description": "Backend module for remote-sync and remote-backup",
     "type": "craft-module",
     "license": "proprietary",
     "authors": [
@@ -25,7 +25,6 @@
     },
     "suggest": {
         "aws/aws-sdk-php": "Required for AWS S3 or Digital Ocean Spaces usage",
-        "gliterd/backblaze-b2": "Required for Backblaze usage",
         "kunalvarma05/dropbox-php-sdk": "Required for Dropbox usage",
         "google/apiclient": "Required for Google Drive usage"
     }

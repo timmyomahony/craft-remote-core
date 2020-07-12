@@ -17,20 +17,20 @@ use weareferal\remotecore\services\providers\AWSProvider;
  */
 class DigitalOceanProvider extends AWSProvider
 {
-    private $name = "Digital Ocean Spaces";
+    public $name = "Digital Ocean Spaces";
 
     protected function getEndpoint(): ?string
     {
-        $regionName = Craft::parseEnv($this->settings->doRegionName);
+        $regionName = Craft::parseEnv($this->plugin->settings->doRegionName);
         return "https://{$regionName}.digitaloceanspaces.com";
     }
 
     protected function getAccessKey(): ?string {
-        return Craft::parseEnv($this->settings->doAccessKey); 
+        return Craft::parseEnv($this->plugin->settings->doAccessKey); 
     }
 
     protected function getSecretKey(): ?string {
-        return Craft::parseEnv($this->settings->doSecretKey); 
+        return Craft::parseEnv($this->plugin->settings->doSecretKey); 
     }
 
     protected function getRegionName(): ?string {
@@ -44,10 +44,10 @@ class DigitalOceanProvider extends AWSProvider
     }
 
     protected function getBucketName(): ?string {
-        return Craft::parseEnv($this->settings->doSpacesName); 
+        return Craft::parseEnv($this->plugin->settings->doSpacesName); 
     }
 
     protected function getBucketPath(): ?string {
-        return Craft::parseEnv($this->settings->doSpacesPath); 
+        return Craft::parseEnv($this->plugin->settings->doSpacesPath); 
     }
 }

@@ -1,14 +1,15 @@
 <?php
 namespace weareferal\remotecore\services;
 
+use weareferal\remotecore\RemoteCore;
+use weareferal\remotecore\helpers\ZipHelper;
+use weareferal\remotecore\helpers\RemoteFile;
+
 use weareferal\remotecore\services\providers\AWSProvider;
 use weareferal\remotecore\services\providers\BackblazeProvider;
 use weareferal\remotecore\services\providers\DropboxProvider;
 use weareferal\remotecore\services\providers\GoogleDriveProvider;
 use weareferal\remotecore\services\providers\DigitalOceanProvider;
-
-use weareferal\remotecore\helpers\ZipHelper;
-use weareferal\remotecore\helpers\RemoteFile;
 
 use Craft;
 use craft\base\Component;
@@ -34,20 +35,19 @@ interface ProviderInterface
 }
 
 
-abstract class Provider implements ProviderInterface
+/**
+ * Base Prodiver
+ * 
+ * A remote cloud backend provider for sending and receiving files to and from
+ */
+abstract class ProviderService extends Component implements ProviderInterface
 {
-    /**
-     * Plugin settings
-     * 
-     * These settings are passed in from the plugin when our provider service
-     * is created
-     */
-    protected $settings;
-    protected $pluginName;
 
-    function __construct($settings, $pluginName) {
-        $this->settings = $settings;
-        $this->pluginName = $pluginName;
+    protected $plugin;
+    public $name;
+
+    function __construct($plugin) {
+        $this->plugin = $plugin;
     }
 
     /**
@@ -324,7 +324,7 @@ abstract class Provider implements ProviderInterface
      */
     protected function getLocalDir()
     {
-        $dir = Craft::$app->path->getStoragePath() . "/" . $this->pluginName;
+        $dir = Craft::$app->path->getStoragePath() . "/" . $this->plugin->getHandle();
         if (!file_exists($dir)) {
             mkdir($dir, 0777, true);
         }
@@ -360,35 +360,9 @@ abstract class Provider implements ProviderInterface
      */
     protected function getSettings()
     {
-        return $this->settings;
+        return $this->plugin->getSettings();
     }
+
+    
 }
 
-/**
- * Provider Service
- * 
- * The job of the provider service is to simply return an instance of the
- * users remote backend provider (Google Drive, Dropbox, ...) based on their
- * plugin settings.
- * 
- * @return Provider An instance (not class) of the provider
- * @since 1.0.0
- */
-class ProviderService extends Component {
-    public static function create($settings, $pluginName) {
-        $ProviderClass = null;
-        switch ($settings->cloudProvider) {
-            case "s3":
-                $ProviderClass = AWSProvider::class;
-            case "b2":
-                $ProviderClass = BackblazeProvider::class;
-            case "google":
-                $ProviderClass = GoogleDriveProvider::class;
-            case "dropbox":
-                $ProviderClass = DropboxProvider::class;
-            case "do":
-                $ProviderClass = DigitalOceanProvider::class;
-        }
-        return new $ProviderClass($settings, $pluginName);
-    }
-}

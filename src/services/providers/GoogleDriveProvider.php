@@ -9,7 +9,7 @@ use Google_Exception;
 use Google_Service_Drive;
 use Google_Service_Drive_DriveFile;
 
-use weareferal\remotecore\services\Provider;
+use weareferal\remotecore\services\ProviderService;
 use weareferal\remotecore\exceptions\ProviderException;
 
 
@@ -28,8 +28,10 @@ use weareferal\remotecore\exceptions\ProviderException;
  * https://github.com/googleapis/google-api-php-client/tree/master/src/Google/Service
  * https://github.com/googleapis/google-api-php-client-services/blob/master/src/Google/Service/Drive.php
  */
-class GoogleDriveProvider extends Provider
+class GoogleDriveProvider extends ProviderService
 {
+    public $name = "Google Drive";
+
     /**
      * Is Configured
      * 
@@ -38,11 +40,10 @@ class GoogleDriveProvider extends Provider
      */
     public function isConfigured(): bool
     {
-        $settings = $this->getSettings();
-        return isset($settings->googleClientId) &&
-            isset($settings->googleClientSecret) &&
-            isset($settings->googleProjectName) &&
-            isset($settings->googleAuthRedirect);
+        return isset($this->plugin->settings->googleClientId) &&
+            isset($this->plugin->settings->googleClientSecret) &&
+            isset($this->plugin->settings->googleProjectName) &&
+            isset($this->plugin->settings->googleAuthRedirect);
     }
 
     /**
@@ -75,8 +76,7 @@ class GoogleDriveProvider extends Provider
      */
     public function list($filterExtension): array
     {
-        $settings = $this->getSettings();
-        $googleDriveFolderId = Craft::parseEnv($settings->googleDriveFolderId);
+        $googleDriveFolderId = Craft::parseEnv($this->plugin->settings->googleDriveFolderId);
         $service = new Google_Service_Drive($this->getClient());
 
         $q = "name contains '${filterExtension}'";
@@ -117,8 +117,7 @@ class GoogleDriveProvider extends Provider
     public function push($localPath)
     {
         $mimeType = mime_content_type($localPath);
-        $settings = $this->getSettings();
-        $googleDriveFolderId = Craft::parseEnv($settings->googleDriveFolderId);
+        $googleDriveFolderId = Craft::parseEnv($this->plugin->settings->googleDriveFolderId);
         $service = new Google_Service_Drive($this->getClient());
         $gFile = new Google_Service_Drive_DriveFile();
         $gFile->setName(basename($localPath));
@@ -203,8 +202,7 @@ class GoogleDriveProvider extends Provider
      */
     private function getFileID($filename)
     {
-        $settings = $this->getSettings();
-        $googleDriveFolderId = Craft::parseEnv($settings->googleDriveFolderId);
+        $googleDriveFolderId = Craft::parseEnv($this->plugin->settings->googleDriveFolderId);
         $service = new Google_Service_Drive($this->getClient());
         $q = "name = '${filename}'";
         if ($googleDriveFolderId) {
@@ -231,10 +229,9 @@ class GoogleDriveProvider extends Provider
     {
         return Craft::$app->path->getStoragePath()
             . DIRECTORY_SEPARATOR
-            . $this->pluginName
+            . $this->plugin->getHandle()
             . DIRECTORY_SEPARATOR
-            . $this->tokenFileName
-            . "google-drive-{$this->pluginName}-token"
+            . "google-drive-{$this->plugin->getHandle()}-token"
             . ".json";
     }
 
@@ -248,19 +245,18 @@ class GoogleDriveProvider extends Provider
      */
     function getClient(): Google_Client
     {
-        $settings = $this->getSettings();
         $client = new Google_Client();
         $client->setApplicationName('Craft Remote Sync');
         $client->setScopes(Google_Service_Drive::DRIVE_FILE);
         $config = [
-            'client_id' => Craft::parseEnv($settings->googleClientId),
-            "project_id" => Craft::parseEnv($settings->googleProjectName),
+            'client_id' => Craft::parseEnv($this->plugin->settings->googleClientId),
+            "project_id" => Craft::parseEnv($this->plugin->settings->googleProjectName),
             "auth_uri" => "https://accounts.google.com/o/oauth2/auth",
             "token_uri" => "https://oauth2.googleapis.com/token",
             "auth_provider_x509_cert_url" => "https://www.googleapis.com/oauth2/v1/certs",
-            "client_secret" => Craft::parseEnv($settings->googleClientSecret),
+            "client_secret" => Craft::parseEnv($this->plugin->settings->googleClientSecret),
             "redirect_uris" => [
-                Craft::parseEnv($settings->googleAuthRedirect)
+                Craft::parseEnv($this->plugin->settings->googleAuthRedirect)
             ]
         ];
         $client->setAuthConfig($config);
