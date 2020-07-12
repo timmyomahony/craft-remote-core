@@ -108,7 +108,7 @@ abstract class ProviderService extends Component implements ProviderInterface
         $path = $this->createDatabaseDump($filename);
         $this->push($path);
 
-        if (! $settings->keepLocal) {
+        if (property_exists($settings, 'keepLocal') && ! $settings->keepLocal) {
             unlink($path);
         }
 
@@ -129,7 +129,7 @@ abstract class ProviderService extends Component implements ProviderInterface
         $path = $this->createVolumesZip($filename);
         $this->push($path);
 
-        if (! $settings->keepLocal) {
+        if (property_exists($settings, 'keepLocal') && ! $settings->keepLocal) {
             unlink($path);
         }
 
