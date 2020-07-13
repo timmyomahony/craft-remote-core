@@ -2,6 +2,7 @@
 
 namespace weareferal\remotecore;
 
+use Craft;
 use craft\events\RegisterTemplateRootsEvent;
 use craft\web\View;
 use yii\base\Event;
@@ -12,6 +13,9 @@ use weareferal\remotecore\services\ProviderFactory;
 class RemoteCoreModule extends Module
 {
     public function init() {
+        Craft::setAlias('@remote-core', $this->getBasePath());
+        $this->controllerNamespace = 'remote-core\controllers';
+
         // Register provider factory
         $this->setComponents([
             'providerFactory' => ProviderFactory::class
