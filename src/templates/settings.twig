@@ -9,7 +9,7 @@
     id: 'enabled',
     on: settings.enabled,
     errors: settings.getErrors('enabled'),
-    warning: configWarning('enabled', 'remote-core')
+    warning: configWarning('enabled', pluginHandle)
 }) }}
 
 <hr>
@@ -28,7 +28,7 @@
     value: settings.cloudProvider,
     required: true,
     errors: settings.getErrors('cloudProvider'),
-    warning: configWarning('cloudProvider', 'remote-core')
+    warning: configWarning('cloudProvider', pluginHandle)
 }) }}
 
 {# AWS #}
@@ -44,7 +44,7 @@
         required: (settings.cloudProvider == 's3'),
         type: 'password',
         errors: settings.getErrors('s3AccessKey'),
-        warning: configWarning('s3AccessKey', 'remote-core')
+        warning: configWarning('s3AccessKey', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -58,7 +58,7 @@
         required: (settings.cloudProvider == 's3'),
         type: 'password',
         errors: settings.getErrors('s3SecretKey'),
-        warning: configWarning('s3SecretKey', 'remote-core')
+        warning: configWarning('s3SecretKey', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -72,7 +72,7 @@
         placeholder: "my-craft-backups",
         required: (settings.cloudProvider == 's3'),
         errors: settings.getErrors('s3BucketName'),
-        warning: configWarning('s3BucketName', 'remote-core')
+        warning: configWarning('s3BucketName', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -86,7 +86,7 @@
         placeholder: "us-west-2",
         required: (settings.cloudProvider == 's3'),
         errors: settings.getErrors('s3RegionName'),
-        warning: configWarning('s3RegionName', 'remote-core')
+        warning: configWarning('s3RegionName', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -99,7 +99,7 @@
         value: settings.s3BucketPath,
         placeholder: "craft-backups/my-site",
         errors: settings.getErrors('s3BucketPath'),
-        warning: configWarning('s3BucketPath', 'remote-core')
+        warning: configWarning('s3BucketPath', pluginHandle)
     }) }}
 </div>
 
@@ -116,7 +116,7 @@
         required: (settings.cloudProvider == 'b2'),
         type: 'password',
         errors: settings.getErrors('b2MasterKeyID'),
-        warning: configWarning('b2MasterKeyID', 'remote-core')
+        warning: configWarning('b2MasterKeyID', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -130,7 +130,7 @@
         required: (settings.cloudProvider == 'b2'),
         type: 'password',
         errors: settings.getErrors('b2MasterAppKey'),
-        warning: configWarning('b2MasterAppKey', 'remote-core')
+        warning: configWarning('b2MasterAppKey', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -144,7 +144,7 @@
         placeholder: "us-west-002",
         required: (settings.cloudProvider == 'b2'),
         errors: settings.getErrors('b2RegionName'),
-        warning: configWarning('b2RegionName', 'remote-core')
+        warning: configWarning('b2RegionName', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -158,7 +158,7 @@
         placeholder: "my-craft-backups",
         required: (settings.cloudProvider == 'b2'),
         errors: settings.getErrors('b2BucketName'),
-        warning: configWarning('b2BucketName', 'remote-core')
+        warning: configWarning('b2BucketName', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -171,7 +171,7 @@
         value: settings.b2BucketPath,
         placeholder: "craft-backups/my-site",
         errors: settings.getErrors('b2BucketPath'),
-        warning: configWarning('b2BucketPath', 'remote-core')
+        warning: configWarning('b2BucketPath', pluginHandle)
     }) }}
 </div>
 
@@ -187,7 +187,7 @@
         value: settings.googleProjectName,
         required: (settings.cloudProvider == 'google'),
         errors: settings.getErrors('googleProjectName'),
-        warning: configWarning('googleProjectName', 'remote-core')
+        warning: configWarning('googleProjectName', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -201,7 +201,7 @@
         value: settings.googleClientId,
         required: (settings.cloudProvider == 'google'),
         errors: settings.getErrors('googleClientId'),
-        warning: configWarning('googleClientId', 'remote-core')
+        warning: configWarning('googleClientId', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -215,7 +215,7 @@
         value: settings.googleClientSecret,
         required: (settings.cloudProvider == 'google'),
         errors: settings.getErrors('googleClientSecret'),
-        warning: configWarning('googleClientSecret', 'remote-core')
+        warning: configWarning('googleClientSecret', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -228,7 +228,7 @@
         value: settings.googleAuthRedirect,
         required: (settings.cloudProvider == 'google'),
         errors: settings.getErrors('googleAuthRedirect'),
-        warning: configWarning('googleAuthRedirect', 'remote-core')
+        warning: configWarning('googleAuthRedirect', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -240,12 +240,12 @@
         suggestAliases: true,
         value: settings.googleDriveFolderId,
         errors: settings.getErrors('googleDriveFolderId'),
-        warning: configWarning('googleDriveFolderId', 'remote-core')
+        warning: configWarning('googleDriveFolderId', pluginHandle)
     }) }}    
 
     {% if isConfigured and not isAuthenticated %}
         <div>
-            <a href="/admin/{{ plugin.getHandle() }}/google-drive/auth" class="btn">{{"Authenticate with Google Drive"|t}}</a>
+            <a href="/admin/{{ pluginHandle }}/google-drive/auth" class="btn">{{"Authenticate with Google Drive"|t}}</a>
         </div>
     {% endif %}
 </div>
@@ -262,7 +262,7 @@
         value: settings.dropboxAppKey,
         required: (settings.cloudProvider == 'dropbox'),
         errors: settings.getErrors('dropboxAppKey'),
-        warning: configWarning('dropboxAppKey', 'remote-core')
+        warning: configWarning('dropboxAppKey', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -275,7 +275,7 @@
         value: settings.dropboxSecretKey,
         required: (settings.cloudProvider == 'dropbox'),
         errors: settings.getErrors('dropboxSecretKey'),
-        warning: configWarning('dropboxSecretKey', 'remote-core')
+        warning: configWarning('dropboxSecretKey', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -288,7 +288,7 @@
         value: settings.dropboxAccessToken,
         required: (settings.cloudProvider == 'dropbox'),
         errors: settings.getErrors('dropboxAccessToken'),
-        warning: configWarning('dropboxAccessToken', 'remote-core')
+        warning: configWarning('dropboxAccessToken', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -301,7 +301,7 @@
         suggestAliases: true,
         value: settings.dropboxFolder,
         errors: settings.getErrors('dropboxFolder'),
-        warning: configWarning('dropboxFolder', 'remote-core')
+        warning: configWarning('dropboxFolder', pluginHandle)
     }) }}
 </div>
 
@@ -318,7 +318,7 @@
         required: (settings.cloudProvider == 'do'),
         type: 'password',
         errors: settings.getErrors('doAccessKey'),
-        warning: configWarning('doAccessKey', 'remote-sync')
+        warning: configWarning('doAccessKey', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -332,7 +332,7 @@
         required: (settings.cloudProvider == 'do'),
         type: 'password',
         errors: settings.getErrors('doSecretKey'),
-        warning: configWarning('doSecretKey', 'remote-sync')
+        warning: configWarning('doSecretKey', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -346,7 +346,7 @@
         placeholder: "craft-sync",
         required: (settings.cloudProvider == 'do'),
         errors: settings.getErrors('doSpacesName'),
-        warning: configWarning('doSpacesName', 'remote-sync')
+        warning: configWarning('doSpacesName', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -360,7 +360,7 @@
         placeholder: "fra1",
         required: (settings.cloudProvider == 'do'),
         errors: settings.getErrors('doRegionName'),
-        warning: configWarning('doRegionName', 'remote-sync')
+        warning: configWarning('doRegionName', pluginHandle)
     }) }}
 
     {{ forms.autosuggestField({
@@ -373,7 +373,7 @@
         value: settings.doSpacesPath,
         placeholder: "craft-sync/my-site",
         errors: settings.getErrors('doSpacesPath'),
-        warning: configWarning('doSpacesPath', 'remote-sync')
+        warning: configWarning('doSpacesPath', pluginHandle)
     }) }}
 </div>
 
@@ -386,7 +386,7 @@
     id: 'useQueue',
     on: settings.useQueue,
     errors: settings.getErrors('useQueue'),
-    warning: configWarning('useQueue', 'remote-core')
+    warning: configWarning('useQueue', pluginHandle)
 }) }}
 
 <hr>
@@ -402,7 +402,7 @@
     id: 'hideDatabases',
     on: settings.hideDatabases,
     errors: settings.getErrors('hideDatabases'),
-    warning: configWarning('hideDatabases', 'remote-core')
+    warning: configWarning('hideDatabases', pluginHandle)
 }) }}
 
 {{ forms.lightswitchField({
@@ -412,5 +412,5 @@
     id: 'hideVolumes',
     on: settings.hideVolumes,
     errors: settings.getErrors('hideVolumes'),
-    warning: configWarning('hideVolumes', 'remote-core')
+    warning: configWarning('hideVolumes', pluginHandle)
 }) }}
