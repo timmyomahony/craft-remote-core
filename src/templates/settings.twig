@@ -106,8 +106,8 @@
 {# Backblaze B2 #}
 <div class="provider provider-b2">
     {{ forms.autosuggestField({
-        label: "B2 Master Key ID"|t('remote-core'),
-        instructions: "Your Backblaze master 'keyID'"|t('remote-core'),
+        label: "B2 Key ID"|t('remote-core'),
+        instructions: "Your Backblaze 'keyID'"|t('remote-core'),
         name: 'b2MasterKeyID',
         id: 'b2MasterKeyID',
         suggestEnvVars: true,
@@ -120,8 +120,8 @@
     }) }}
 
     {{ forms.autosuggestField({
-        label: "B2 Master Application Key",
-        instructions: "Your Backblaze master 'applicationKey'"|t('remote-core'),
+        label: "B2 Application Key",
+        instructions: "Your Backblaze 'applicationKey'"|t('remote-core'),
         name: 'b2MasterAppKey',
         id: 'b2MasterAppKey',
         suggestEnvVars: true,
