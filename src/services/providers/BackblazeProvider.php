@@ -26,11 +26,11 @@ class BackblazeProvider extends AWSProvider
     }
 
     protected function getAccessKey(): ?string {
-        return Craft::parseEnv($this->plugin->settings->b2KeyID); 
+        return Craft::parseEnv($this->plugin->settings->b2MasterKeyID); 
     }
 
     protected function getSecretKey(): ?string {
-        return Craft::parseEnv($this->plugin->settings->b2AppKey); 
+        return Craft::parseEnv($this->plugin->settings->b2MasterAppKey); 
     }
 
     protected function getRegionName(): ?string {
