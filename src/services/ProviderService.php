@@ -106,9 +106,13 @@ abstract class ProviderService extends Component implements ProviderInterface
         $settings = $this->getSettings();
         $filename = $this->createFilename();
         $path = $this->createDatabaseDump($filename);
+
+        Craft::debug('New database sql path:' . $path, 'remote-core');
+
         $this->push($path);
 
         if (! property_exists($settings, 'keepLocal') || ! $settings->keepLocal) {
+            Craft::debug('Deleting local volume zip file:' . $path, 'remote-core');
             unlink($path);
         }
 
@@ -127,9 +131,13 @@ abstract class ProviderService extends Component implements ProviderInterface
         $settings = $this->getSettings();
         $filename = $this->createFilename();
         $path = $this->createVolumesZip($filename);
+
+        Craft::debug('New volume zip path:' . $path, 'remote-core');
+
         $this->push($path);
 
         if (! property_exists($settings, 'keepLocal') || ! $settings->keepLocal) {
+            Craft::debug('Deleting local database sql file:' . $path, 'remote-core');
             unlink($path);
         }
 
