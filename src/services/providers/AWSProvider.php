@@ -6,6 +6,7 @@ use Craft;
 
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
+use Aws\S3\MultipartUploader;
 
 use weareferal\remotecore\services\ProviderService;
 use weareferal\remotecore\exceptions\ProviderException;
@@ -86,12 +87,17 @@ class AWSProvider extends ProviderService
         $client = $this->getClient();
         $pathInfo = pathinfo($path);
         $key = $this->getPrefixedKey($pathInfo['basename']);
+
+        Craft::debug("AWS: Pushing file to provider", "remote-core");
+        Craft::debug("AWS: Local path: " . $path, "remote-core");
+        Craft::debug("AWS: Remote path: " . $key, "remote-core");
+
         try {
-            $client->putObject([
-                'Bucket' => $this->getBucketName(),
-                'Key' => $key,
-                'SourceFile' => $path
+            $uploader = new MultipartUploader($client, $path, [
+                'bucket' => $this->getBucketName(),
+                'key' => $key,
             ]);
+            $uploader->upload();
         } catch (AwsException $exception) {
             throw new ProviderException($this->createErrorMessage($exception));
         }
@@ -106,6 +112,11 @@ class AWSProvider extends ProviderService
     {
         $client = $this->getClient();
         $key = $this->getPrefixedKey($key);
+
+        Craft::debug("AWS: Pulling file from provider", "remote-core");
+        Craft::debug("AWS: Remote path: " . $key, "remote-core");
+        Craft::debug("AWS: Local path: " . $localPath, "remote-core");
+    
         try {
             $client->getObject([
                 'Bucket' => $this->getBucketName(),
@@ -130,7 +141,7 @@ class AWSProvider extends ProviderService
         $key = $this->getPrefixedKey($key);
         $exists = $client->doesObjectExist($this->getBucketName(), $key);
         if (!$exists) {
-            throw new ProviderException("AWS key does not exist");
+            throw new ProviderException("File does not exist on AWS");
         }
         try {
             $client->deleteObject([

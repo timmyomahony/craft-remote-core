@@ -1,6 +1,6 @@
 <?php
 
-namespace weareferal\remotecore\assets\remotecoresettings;
+namespace weareferal\remotecore\assets\RemoteCoreSettings;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
