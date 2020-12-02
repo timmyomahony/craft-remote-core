@@ -24,7 +24,7 @@ class RemoteFile
     // - Random string
     // - Version
     // - Extension
-    private static $regex = '/^(?:[a-zA-Z0-9\-]+)\_(?:([a-zA-Z0-9\-]+)\_)?(\d{6}\_\d{6})\_(?:[a-zA-Z0-9]+)\_(?:[v0-9\.]+)\.(?:\w{2,10})$/';
+    private static $regex = '/^(?:[a-zA-Z0-9\-]+)\_(?:([a-zA-Z0-9\-]+)\_)?(\d{6}\_\d{6})\_(?:[a-zA-Z0-9]+)\_(?:[va-zA-Z0-9\.\-]+)\.(?:\w{2,10})$/';
 
     public function __construct($_filename)
     {

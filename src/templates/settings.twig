@@ -23,7 +23,8 @@
         { label: 'Backblaze B2', value: 'b2' },
         { label: 'Google Drive', value: 'google' },
         { label: 'Dropbox', value: 'dropbox' },
-        { label: 'Digital Ocean Spaces', value: 'do' }
+        { label: 'Digital Ocean Spaces', value: 'do' },
+        { label: 'Other S3-Compliant Provider', value: 'other-s3' }
     ],
     value: settings.cloudProvider,
     required: true,
@@ -374,6 +375,90 @@
         placeholder: "craft-sync/my-site",
         errors: settings.getErrors('doSpacesPath'),
         warning: configWarning('doSpacesPath', pluginHandle)
+    }) }}
+</div>
+
+{# Other S3 compliant #}
+<div class="provider provider-other-s3">
+    {{ forms.autosuggestField({
+        label: "Access Key"|t('remote-core'),
+        instructions: "The access key associated with your account"|t('remote-core'),
+        name: 'otherS3AccessKey',
+        id: 'otherS3AccessKey',
+        suggestEnvVars: true,
+        suggestAliases: true,
+        value: settings.otherS3AccessKey,
+        required: (settings.cloudProvider == 'other-s3'),
+        type: 'password',
+        errors: settings.getErrors('otherS3AccessKey'),
+        warning: configWarning('otherS3AccessKey', pluginHandle)
+    }) }}
+
+    {{ forms.autosuggestField({
+        label: "Secret Key",
+        instructions: "The secret key associated with your account"|t('remote-core'),
+        name: 'otherS3SecretKey',
+        id: 'otherS3SecretKey',
+        suggestEnvVars: true,
+        suggestAliases: true,
+        value: settings.otherS3SecretKey,
+        required: (settings.cloudProvider == 'other-s3'),
+        type: 'password',
+        errors: settings.getErrors('otherS3SecretKey'),
+        warning: configWarning('otherS3SecretKey', pluginHandle)
+    }) }}
+
+    {{ forms.autosuggestField({
+        label: "Endpoint"|t('remote-core'),
+        instructions: "The endpoint for the S3-compliant provider"|t('remote-core'),
+        name: 'otherS3Endpoint',
+        id: 'otherS3Endpoint',
+        suggestEnvVars: true,
+        suggestAliases: true,
+        value: settings.otherS3Endpoint,
+        required: (settings.cloudProvider == 'other-s3'),
+        errors: settings.getErrors('otherS3Endpoint'),
+        warning: configWarning('otherS3Endpoint', pluginHandle)
+    }) }}
+
+    {{ forms.autosuggestField({
+        label: "Bucket Name"|t('remote-core'),
+        instructions: "The name of the bucket you want to send backups to"|t('remote-core'),
+        name: 'otherS3BucketName',
+        id: 'otherS3BucketName',
+        suggestEnvVars: true,
+        suggestAliases: true,
+        value: settings.otherS3BucketName,
+        placeholder: "my-craft-backups",
+        required: (settings.cloudProvider == 'other-s3'),
+        errors: settings.getErrors('otherS3BucketName'),
+        warning: configWarning('otherS3BucketName', pluginHandle)
+    }) }}
+
+    {{ forms.autosuggestField({
+        label: "Region Name"|t('remote-core'),
+        instructions: "The region your bucket is in"|t('remote-core'),
+        name: 'otherS3RegionName',
+        id: 'otherS3RegionName',
+        suggestEnvVars: true,
+        suggestAliases: true,
+        value: settings.otherS3RegionName,
+        required: (settings.cloudProvider == 'other-s3'),
+        errors: settings.getErrors('otherS3RegionName'),
+        warning: configWarning('otherS3RegionName', pluginHandle)
+    }) }}
+
+    {{ forms.autosuggestField({
+        label: "Bucket Path"|t('remote-core'),
+        instructions: "A path within your bucket to prefix your backups with. Do not include a leading or trailing slash"|t('remote-core'),
+        name: 'otherS3BucketPath',
+        id: 'otherS3BucketPath',
+        suggestEnvVars: true,
+        suggestAliases: true,
+        value: settings.otherS3BucketPath,
+        placeholder: "craft-backups/my-site",
+        errors: settings.getErrors('otherS3BucketPath'),
+        warning: configWarning('otherS3BucketPath', pluginHandle)
     }) }}
 </div>
 

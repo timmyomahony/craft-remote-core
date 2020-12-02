@@ -15,3 +15,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 
 - Fixed composer 2 issue
+
+## 1.0.2 - [TODO]
+
+### Added
+
+- Added generic s3-compliant provider (issue #31 on craft-remote-sync)
+
+### Changed
+
+- Fixed filename regex (issue #26 on craft-remote-sync)
