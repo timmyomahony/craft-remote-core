@@ -25,3 +25,4 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 
 - Fixed filename regex (issue #26 on craft-remote-sync)
+- Moved shared utilities JS and CSS to core module

@@ -16,9 +16,9 @@ class RemoteCoreUtilityAsset extends AssetBundle
             CpAsset::class,
         ];
 
-        // $this->js = [
-        //     'js/RemoteCoreUtility.js'
-        // ];
+        $this->js = [
+            'js/RemoteCoreUtility.js'
+        ];
 
         $this->css = [
             'css/RemoteCoreUtility.css',
