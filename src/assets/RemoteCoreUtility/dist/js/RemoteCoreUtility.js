@@ -94,25 +94,32 @@
           .removeClass("template-row default-row");
 
         var $td = $row.find("td:first");
-        $td.text(options[i].label);
-        $td.attr("title", options[i].value);
-        $td.attr("data-filename", options[i].value);
+        $td.addClass("rb-utilities-row");
+        
+        // Add date
+        var $span = $("<span>").text(options[i].text).attr("title", options[i].title);
+        $td.append($span);
 
+        // Add "latest" bubble
         if (i === 0) {
-          $td.append($("<span>").text("latest"));
+          $td.append($("<span>", {
+              class: "rb-utilities-bubble"
+          }).text("latest"));
         } else {
           $row.removeClass("first");
         }
 
+        // Add "Pull" button
         var $pullButton = $row.find(".pull-button");
         if ($pullButton.length > 0) {
             this.addListener(
             $row.find(".pull-button"),
             "click",
-            this.pull.bind(this, options[i].value)
+            this.pull.bind(this, options[i].filename)
             );
         }
         
+        // Add "Delete" button
         var $deleteButton = $row.find(".delete-button");
         if ($deleteButton.length > 0) {
             this.addListener(

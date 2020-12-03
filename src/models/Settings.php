@@ -67,6 +67,8 @@ abstract class Settings extends Model
     public $hideDatabases = false;
     public $hideVolumes = false;
 
+    public $displayDateFormat = "Y-m-d H:i:s";
+
     public function rules(): array
     {
         return [
@@ -127,6 +129,7 @@ abstract class Settings extends Model
                     'googleClientId', 'googleClientSecret', 'googleProjectName', 'googleAuthRedirect', 'googleDriveFolderId',
                     'dropboxAppKey', 'dropboxSecretKey', 'dropboxAccessToken', 'dropboxFolder',
                     'doAccessKey', 'doSecretKey', 'doSpacesName', 'doRegionName', 'doSpacesPath',
+                    'displayDateFormat'
                 ],
                 'string'
             ],

@@ -499,3 +499,16 @@
     errors: settings.getErrors('hideVolumes'),
     warning: configWarning('hideVolumes', pluginHandle)
 }) }}
+
+<hr>
+
+{{ forms.textField({
+    label: "Display Date Format"|t('remote-core'),
+    type: "text",
+    instructions: "The date format to use to display files in the utilities section"|t('remote-core'),
+    name: 'displayDateFormat',
+    id: 'displayDateFormat',
+    value: settings.displayDateFormat,
+    errors: settings.getErrors('displayDateFormat'),
+    warning: configWarning('displayDateFormat', 'remote-core')
+}) }}

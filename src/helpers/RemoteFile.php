@@ -2,6 +2,7 @@
 
 namespace weareferal\remotecore\helpers;
 
+use weareferal\remotecore\RemoteCoreModule;
 use weareferal\remotecore\helpers\TimeHelper;
 
 /**
@@ -14,7 +15,6 @@ class RemoteFile
 {
     public $filename;
     public $datetime;
-    public $label;
     public $env;
 
     // Regex to capture/match:
@@ -26,23 +26,13 @@ class RemoteFile
     // - Extension
     private static $regex = '/^(?:[a-zA-Z0-9\-]+)\_(?:([a-zA-Z0-9\-]+)\_)?(\d{6}\_\d{6})\_(?:[a-zA-Z0-9]+)\_(?:[va-zA-Z0-9\.\-]+)\.(?:\w{2,10})$/';
 
-    public function __construct($_filename)
+    public function __construct($filename)
     {
         // Extract values from filename
-        preg_match(RemoteFile::$regex, $_filename, $matches);
-        $env = $matches[1];
-        $date = $matches[2];
-        $datetime = date_create_from_format('ymd_Gis', $date);
-        $timesince = TimeHelper::time_since($datetime->getTimestamp());
-        $label = $datetime->format('Y-m-d H:i:s');
-        if ($env) {
-            $label = $label  . ' (' . $env . ')';
-        }
-        $this->filename = $_filename;
-        $this->datetime = $datetime;
-        $this->label = $label;
-        $this->timesince = $timesince;
-        $this->env = $env;
+        preg_match(RemoteFile::$regex, $filename, $matches);
+        $this->filename = $filename;
+        $this->datetime = date_create_from_format('ymd_Gis', $matches[2]);
+        $this->env = $matches[1];
     }
 
     public static function createArray($filenames) {
@@ -59,12 +49,15 @@ class RemoteFile
         return array_reverse($files);
     }
 
-    public static function toHTMLOptions($array) {
+    public static function toHTMLOptions($array, $format="Y-m-d H:i:s") {
         $options = [];
         foreach ($array as $i => $file) {
+            $timesince = TimeHelper::time_since($file->datetime->getTimestamp());
+            $title = $file->filename . " (" . $timesince . " ago)"; 
+            $text = $file->datetime->format($format);
             $options[$i] = [
-                "label" => $file->label,
-                "value" => $file->filename
+                "text" => $text,
+                "title" => $title
             ];
         }
         return $options;

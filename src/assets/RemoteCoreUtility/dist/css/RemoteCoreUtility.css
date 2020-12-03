@@ -32,9 +32,14 @@
     align-items: center;
     padding-left: 0;
   }
+
+  /* Row */
+  .rb-utilities-row {
+    
+  }
   
   /* "Latest" bubble */
-  .rb-utilities-table tbody tr td:first-child span {
+  .rb-utilities-bubble {
     border: 1px solid #9aa5b1;
     margin: 2px 0 0 10px;
     padding: 3px 6px;
