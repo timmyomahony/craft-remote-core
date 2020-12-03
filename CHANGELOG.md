@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
 
 - Added generic s3-compliant provider (issue #31 on craft-remote-sync)
+- Added TTR to queue jobs (issue #38 on craft-remote-sync)
 
 ### Changed
 
