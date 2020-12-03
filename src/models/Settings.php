@@ -61,6 +61,8 @@ abstract class Settings extends Model
     // when you have large database of volume backups that need to be run where
     // a regular non-async request might timeout
     public $useQueue = false;
+    // https://github.com/yiisoft/yii2-queue/blob/master/docs/guide/retryable.md#retryablejobinterface
+    public $queueTtr = "300";
 
     // Show/hide either databases or volume backups in the utilities panel.
     // This is useful for cleaning up the interface
@@ -68,6 +70,8 @@ abstract class Settings extends Model
     public $hideVolumes = false;
 
     public $displayDateFormat = "Y-m-d H:i:s";
+
+    
 
     public function rules(): array
     {
@@ -129,7 +133,7 @@ abstract class Settings extends Model
                     'googleClientId', 'googleClientSecret', 'googleProjectName', 'googleAuthRedirect', 'googleDriveFolderId',
                     'dropboxAppKey', 'dropboxSecretKey', 'dropboxAccessToken', 'dropboxFolder',
                     'doAccessKey', 'doSecretKey', 'doSpacesName', 'doRegionName', 'doSpacesPath',
-                    'displayDateFormat'
+                    'displayDateFormat', 'queueTtr'
                 ],
                 'string'
             ],

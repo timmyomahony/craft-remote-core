@@ -474,6 +474,17 @@
     warning: configWarning('useQueue', pluginHandle)
 }) }}
 
+{{ forms.textField({
+    label: "Queue 'Time To Reserve'"|t('remote-core'),
+    type: "text",
+    instructions: "Max time for job execution"|t('remote-core'),
+    name: 'queueTtr',
+    id: 'queueTtr',
+    value: settings.queueTtr,
+    errors: settings.getErrors('queueTtr'),
+    warning: configWarning('queueTtr', 'remote-core')
+}) }}
+
 <hr>
 
 {% block customSettings %}{% endblock %}
