@@ -256,7 +256,7 @@ abstract class ProviderService extends Component implements ProviderInterface
         
         $time = microtime(true); 
         foreach ($volumes as $volume) {
-            $fileUris = $volume->getFileList('/', true);
+            $fileUris = $volume->getFileList('/', true);  // all files in the volume
             $tmpPath = $tmpDirName . DIRECTORY_SEPARATOR  . $volume->handle;
             if (! file_exists($tmpPath)) {
                 mkdir($tmpPath, 0777, true);
@@ -268,7 +268,6 @@ abstract class ProviderService extends Component implements ProviderInterface
                 } else {
                     mkdir($localPath, 0777);
                 }
-                Craft::info($localPath, "remote-core");
             }
             
         }
