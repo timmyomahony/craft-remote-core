@@ -3,6 +3,7 @@
     "description": "Backend module for remote-sync and remote-backup",
     "type": "craft-module",
     "license": "proprietary",
+    "version": "1.4.0",
     "authors": [
         {
             "name": "Timmy O'Mahony",
