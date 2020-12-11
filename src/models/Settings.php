@@ -49,15 +49,29 @@ abstract class Settings extends Model
     public $doSpacesName;
     public $doSpacesPath;
 
+    // Other S3 compliant configuration settings
+    public $otherS3AccessKey;
+    public $otherS3SecretKey;
+    public $otherS3Endpoint;
+    public $otherS3RegionName;
+    public $otherS3BucketName;
+    public $otherS3BucketPath;
+
     // Use the build-in Craft queue to handle all operations. This is useful
     // when you have large database of volume backups that need to be run where
     // a regular non-async request might timeout
     public $useQueue = false;
+    // https://github.com/yiisoft/yii2-queue/blob/master/docs/guide/retryable.md#retryablejobinterface
+    public $queueTtr = "300";
 
     // Show/hide either databases or volume backups in the utilities panel.
     // This is useful for cleaning up the interface
     public $hideDatabases = false;
     public $hideVolumes = false;
+
+    public $displayDateFormat = "Y-m-d H:i:s";
+
+    
 
     public function rules(): array
     {
@@ -104,6 +118,14 @@ abstract class Settings extends Model
                 }
             ],
             [
+                ['otherS3AccessKey', 'otherS3SecretKey', 'otherS3BucketName', 'otherS3RegionName', 'otherS3Endpoint'],
+                'required',
+                'when' => function ($model) {
+                    return $model->cloudProvider == 'other-s3' & $model->enabled == 1;
+                }
+            ],
+            
+            [
                 [
                     'cloudProvider',
                     's3AccessKey', 's3SecretKey', 's3BucketName', 's3RegionName', 's3BucketPath',
@@ -111,6 +133,7 @@ abstract class Settings extends Model
                     'googleClientId', 'googleClientSecret', 'googleProjectName', 'googleAuthRedirect', 'googleDriveFolderId',
                     'dropboxAppKey', 'dropboxSecretKey', 'dropboxAccessToken', 'dropboxFolder',
                     'doAccessKey', 'doSecretKey', 'doSpacesName', 'doRegionName', 'doSpacesPath',
+                    'displayDateFormat', 'queueTtr'
                 ],
                 'string'
             ],

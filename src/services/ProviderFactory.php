@@ -6,6 +6,7 @@ use weareferal\remotecore\services\providers\BackblazeProvider;
 use weareferal\remotecore\services\providers\DropboxProvider;
 use weareferal\remotecore\services\providers\GoogleDriveProvider;
 use weareferal\remotecore\services\providers\DigitalOceanProvider;
+use weareferal\remotecore\services\providers\OtherS3Provider;
 
 use Craft;
 use craft\base\Component;
@@ -35,6 +36,9 @@ class ProviderFactory extends Component {
                 break;
             case "do":
                 $ProviderClass = DigitalOceanProvider::class;
+                break;
+            case "other-s3":
+                $ProviderClass = OtherS3Provider::class;
                 break;
         }
         return new $ProviderClass($plugin);

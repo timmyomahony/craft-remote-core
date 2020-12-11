@@ -15,3 +15,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Changed
 
 - Fixed composer 2 issue
+
+## 1.4.0 - 2020-12-08
+
+### Added
+
+- Added generic s3-compliant provider (issue #31 on craft-remote-sync)
+- Added TTR to queue jobs (issue #38 on craft-remote-sync)
+
+### Changed
+
+- Bumped version number for parity between sync & backup plugins
+- Added support for transfering files to and from all volume backends, not just local
+- Fixed filename regex (issue #26 on craft-remote-sync)
+- Moved shared utilities JS and CSS to core module
+- Updated the formatting for file table
