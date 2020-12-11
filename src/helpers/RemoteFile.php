@@ -57,7 +57,8 @@ class RemoteFile
             $text = $file->datetime->format($format);
             $options[$i] = [
                 "text" => $text,
-                "title" => $title
+                "title" => $title,
+                "filename" => $file->filename
             ];
         }
         return $options;

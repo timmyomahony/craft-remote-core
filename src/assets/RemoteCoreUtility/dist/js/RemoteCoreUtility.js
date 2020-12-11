@@ -125,7 +125,7 @@
             this.addListener(
             $row.find(".delete-button"),
             "click",
-            this.delete.bind(this, options[i].value)
+            this.delete.bind(this, options[i].filename)
             );
         }
 
