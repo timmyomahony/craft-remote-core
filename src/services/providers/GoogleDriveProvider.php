@@ -125,15 +125,44 @@ class GoogleDriveProvider extends ProviderService
         if ($googleDriveFolderId) {
             $gFile->setParents([$googleDriveFolderId]);
         }
-        $service->files->create(
-            $gFile,
-            [
-                'data' => file_get_contents($localPath),
-                'mimeType' => $mimeType,
-                'uploadType' => 'multipart',
-                'supportsAllDrives' => true
-            ]
+
+        // Set chunk size
+        $chunkSizeBytes = 1 * 1024 * 1024;
+
+        // Call the API with the media upload, defer so it doesn't immediately return.
+        $client->setDefer(true);
+        $client->setUseBatch(true);
+        $request = $service->files->create($gFile);
+
+        // Create a media file upload to represent our upload process.
+        $media = new \Google\Http\MediaFileUpload(
+            $client,
+            $request,
+            $mimeType,
+            null,
+            true,
+            $chunkSizeBytes
         );
+        $media->setFileSize(filesize($localPath));
+
+        // Upload the various chunks. $status will be false until the process is
+        // complete.
+        $status = false;
+        $handle = fopen($localPath, "rb");
+        while (!$status && !feof($handle)) {
+            // read until you get $chunkSizeBytes from TESTFILE
+            // fread will never return more than 8192 bytes if the stream is read buffered and it does not represent a plain file
+            // An example of a read buffered file is when reading from a URL
+            $chunk = $this->readVideoChunk($handle, $chunkSizeBytes);
+            $status = $media->nextChunk($chunk);
+        }
+        // The final value of $status will be the data from the API for the object
+        // that has been uploaded.
+        $result = false;
+        if ($status != false) {
+            $result = $status;
+        }
+        fclose($handle);
     }
 
     /**
