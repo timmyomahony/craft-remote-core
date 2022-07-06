@@ -56,13 +56,6 @@ abstract class BaseGoogleDriveController extends Controller
         $client = $provider->getClient();
         $isExpired = $client->isAccessTokenExpired();
 
-        // Redirect back to settings page
-        function redirect()
-        {
-            Craft::$app->session->setFlash('notice', Craft::t("remote-core", "Google Drive already authenticated"));
-            return $this->redirect("/admin/settings/plugins/remote-core");
-        }
-
         // Try refresh token 
         if ($isExpired) {
             $refreshToken = $client->getRefreshToken();

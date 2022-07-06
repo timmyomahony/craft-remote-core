@@ -163,10 +163,13 @@ class GoogleDriveProvider extends ProviderService
                 fwrite($out, $response->getBody()->read(1024));
             }
             fclose($out);
+            return true;
         } catch (\Exception $exception) {
             // TODO make sure file deleted
             throw new ProviderException("Couldn't save Google Drive file");
         }
+
+        return false;
     }
 
     /**
@@ -186,6 +189,7 @@ class GoogleDriveProvider extends ProviderService
         $service->files->delete($fileId, [
             'supportsAllDrives' => true
         ]);
+        return true;
     }
 
     /**
