@@ -34,7 +34,7 @@ class DigitalOceanProvider extends AWSProvider
     }
 
     protected function getRegionName(): ?string {
-        // For whatever reason, to use the AWS SDK with Digital Ocena
+        // For whatever reason, to use the AWS SDK with Digital Ocean
         // you set the region name in the API options to us-east-1 while
         // adding the actual Digital Ocean region to the endpoint URL
         // 

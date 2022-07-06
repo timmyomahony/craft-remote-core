@@ -385,7 +385,7 @@ abstract class ProviderService extends Component implements ProviderInterface
     private function createFilename(): string
     {
         $currentVersion = 'v' . Craft::$app->getVersion();
-        $systemName = FileHelper::sanitizeFilename(Craft::$app->getInfo()->name, ['asciiOnly' => true]);
+        $systemName = FileHelper::sanitizeFilename(Craft::$app->getSystemName(), ['asciiOnly' => true]);
         $systemEnv = Craft::$app->env;
         $filename = ($systemName ? $systemName . '_' : '') . ($systemEnv ? $systemEnv . '_' : '') . gmdate('ymd_His') . '_' . strtolower(StringHelper::randomString(10)) . '_' . $currentVersion;
         return mb_strtolower($filename);
