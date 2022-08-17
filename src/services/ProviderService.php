@@ -354,14 +354,11 @@ abstract class ProviderService extends Component implements ProviderInterface
                     $files = FileHelper::findFiles($absDir);
                     foreach ($files as $file) {
                         Craft::debug("-- " . $file, "remote-core");
+                        $fs = $volume->getFs();
                         if (is_file($file)) {
                             $relPath = str_replace($tmpDir . DIRECTORY_SEPARATOR . $volume->handle, '', $file);
                             $stream = fopen($file, 'r');
-                            if ($volume->fileExists($relPath)) {
-                                $volume->updateFileByStream($relPath, $stream, []);
-                            } else {
-                                $volume->createFileByStream($relPath, $stream, []);
-                            }
+                            $fs->writeFileFromStream($relPath, $stream);
                             fclose($stream);
                         }
                         
