@@ -134,7 +134,7 @@ abstract class ProviderService extends Component implements ProviderInterface
 
         // Copy volume files to tmp folder and zip it up
         $zipFilename = $this->createFilename();
-        $tmpDir = $this->copyVolumeFiles();
+        $tmpDir = $this->copyVolumeFilesToTmp();
         $zipPath = $this->createVolumesZip($zipFilename, $tmpDir);
         $this->rmDir($tmpDir);
         Craft::debug("- time to create volume zip:" . (string) (microtime(true) - $time1)  . " seconds", "remote-core");
@@ -199,7 +199,7 @@ abstract class ProviderService extends Component implements ProviderInterface
         // Before pulling volumes, create an emergency backup
         $settings = $this->getSettings();
         if (property_exists($settings, 'keepEmergencyBackup') && $settings->keepEmergencyBackup) {
-            $tmpDir = $this->copyVolumeFiles();
+            $tmpDir = $this->copyVolumeFilesToTmp();
             $zipPath = $this->createVolumesZip("emergency-backup", $tmpDir);
             $this->rmDir($tmpDir);
         }
@@ -237,11 +237,14 @@ abstract class ProviderService extends Component implements ProviderInterface
     }
 
     /**
-     * Copy volume files from their source to the local temp folder
+     * Copy Volume Files To Tmp
+     * 
+     * Copy all files across all volumes to a local temporary directory, ready
+     * to be zipped up.
      * 
      * @return string $path to the temporary directory containing the volumes
      */
-    private function copyVolumeFiles(): string
+    private function copyVolumeFilesToTmp(): string
     {
         Craft::debug("Copying volume files to temp directory", "remote-core");
         
@@ -256,17 +259,32 @@ abstract class ProviderService extends Component implements ProviderInterface
         
         $time = microtime(true); 
         foreach ($volumes as $volume) {
-            $fileUris = $volume->getFileList('/', true);  // all files in the volume
+            // Get all files in the volume.
+            $fileSystem = $volume->getFs();
+            $fsListings = $fileSystem->getFileList('/', true);
+
+            // Create tmp location
             $tmpPath = $tmpDirName . DIRECTORY_SEPARATOR  . $volume->handle;
             if (! file_exists($tmpPath)) {
                 mkdir($tmpPath, 0777, true);
             }
-            foreach ($fileUris as $fileUri=>$file) {
-                $localPath = $tmpPath . DIRECTORY_SEPARATOR . $file['path'];
-                if($file['type'] == "file") {
-                    $volume->saveFileLocally($fileUri, $localPath);
+
+            foreach ($fsListings as $fsListing) {
+                $localDirname = $tmpPath . DIRECTORY_SEPARATOR . $fsListing->getDirname();
+                $localPath = $tmpPath . DIRECTORY_SEPARATOR . $fsListing->getUri();
+            
+                if ($fsListing->getIsDir()) {
+                    mkdir($localPath, 0777, $recursive = true);
                 } else {
-                    mkdir($localPath, 0777);
+                    if ($localDirname && ! file_exists($localDirname)) {
+                        mkdir($localDirname, 0777, true);
+                    }
+                    $src = $fileSystem->getFileStream($fsListing->getUri());
+                    $dst = fopen($localPath, 'w');
+                    stream_copy_to_stream($src, $dst);
+                    fclose($src);
+                    fclose($dst);
+
                 }
             }
             
