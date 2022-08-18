@@ -6,11 +6,14 @@
     "authors": [
         {
             "name": "Timmy O'Mahony",
-            "homepage": "https://weareferal.com"
+            "homepage": "https://timmyomahony.com"
         }
     ],
     "require": {
-        "craftcms/cms": "^3.0.0-RC1"
+        "craftcms/cms": "^4.0.0",
+        "php": "^8.0.2",
+        "aws/aws-sdk-php": "^3.230",
+        "google/apiclient": "^2.12"
     },
     "autoload": {
         "psr-4": {
@@ -27,5 +30,16 @@
         "aws/aws-sdk-php": "Required for AWS S3 or Digital Ocean Spaces usage",
         "kunalvarma05/dropbox-php-sdk": "Required for Dropbox usage",
         "google/apiclient": "Required for Google Drive usage"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.8",
+        "craftcms/phpstan": "dev-main",
+        "craftcms/rector": "dev-main"
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
     }
 }
