@@ -4,17 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 1.0.0 - 2020-06-17
+## 4.1.0 - 2022-10-01
 
 ### Added
 
-- Initial release
+- Better error handling. Temporary files are deleted more reliably now when something goes wrong, avoiding issues with disk space getting eaten up.
 
-## 1.0.1 - 2020-11-06
+### Fixed
 
-### Changed
+- Cleaned up the base provider service, improving logging.
 
-- Fixed composer 2 issue
+## 4.0.0 - 2022-08-18
+
+### Added
+
+- Craft 4 compatibility. Version has jumped from 1.X.X to 4.X.X to make following Craft easier.
 
 ## 1.4.0 - 2020-12-08
 
@@ -31,8 +35,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Moved shared utilities JS and CSS to core module
 - Updated the formatting for file table
 
-## 4.0.0 - 2022-08-18
+## 1.0.1 - 2020-11-06
+
+### Changed
+
+- Fixed composer 2 issue
+
+## 1.0.0 - 2020-06-17
 
 ### Added
 
-- Craft 4 compatibility. Version has jumped from 1.X.X to 4.X.X to make following Craft easier.
+- Initial release

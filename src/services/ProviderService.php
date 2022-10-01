@@ -1,4 +1,5 @@
 <?php
+
 namespace weareferal\remotecore\services;
 
 use Throwable;
@@ -48,7 +49,8 @@ abstract class ProviderService extends Component implements ProviderInterface
     protected $plugin;
     public $name;
 
-    function __construct($plugin) {
+    function __construct($plugin)
+    {
         $this->plugin = $plugin;
     }
 
@@ -114,14 +116,14 @@ abstract class ProviderService extends Component implements ProviderInterface
         try {
             $this->push($path);
         } catch (Throwable $e) {
-            Craft::debug("- cleaning up local database zip file:" . $path, "remote-core");
-            unlink($path);
+            Craft::debug("Database push failed, cleaning up local zip file:" . $path, "remote-core");
+            $this->rmPath($path);
             throw $e;
         }
 
-        if (! property_exists($settings, 'keepLocal') || ! $settings->keepLocal) {
+        if (!property_exists($settings, 'keepLocal') || !$settings->keepLocal) {
             Craft::debug('Deleting local database zip file:' . $path, 'remote-core');
-            unlink($path);
+            $this->rmPath($path);
         }
 
         return $filename;
@@ -130,46 +132,57 @@ abstract class ProviderService extends Component implements ProviderInterface
     /**
      * Push all volumes to remote provider
      * 
-     * @return string The filename of the newly created Remote Sync
+     * @return string The filename of the newly created synced file
      * @return null If no volumes exist
      * @since 1.0.0
      */
     public function pushVolumes(): string
     {
-        Craft::debug("Pushing volumes (zip and push)", "remote-core");
-        
-        $time1 = microtime(true); 
-
-        // Copy volume files to tmp folder and zip it up
         $filename = $this->createFilename();
-        $tmpDir = $this->copyVolumeFilesToTmp();
-        $path = $this->createVolumesZip($filename, $tmpDir);
-        $this->rmDir($tmpDir);
-        Craft::debug("- time to create volume zip:" . (string) (microtime(true) - $time1)  . " seconds", "remote-core");
-        Craft::debug('- new volume zip path:' . $path, 'remote-core');
+        $tmpDirName = $this->createTmpDirName();
+        $tmpZipPath = $this->createTmpZipPath($filename);
+        $time = microtime(true);
+        $settings = $this->getSettings();
 
-        // Push zip to remote destination
-        $time2 = microtime(true);
+        // Copy volume files to tmp folder
         try {
-            $this->push($path);
+            $this->copyVolumeFilesToTmp($tmpDirName);
         } catch (Throwable $e) {
-            Craft::debug("- cleaning up local volume zip file:"  . $path, "remote-core");
-            unlink($path);
+            Craft::debug("Copying volume files locally failed, cleaning up tmp directory:" . $tmpDirName, "remote-core");
+            $this->rmDir($tmpDirName);
             throw $e;
         }
-        Craft::debug("- time to push volume zip: " . (string) (microtime(true) - $time2)  . " seconds", "remote-core");
 
-        // Keep or delete the created zip file
-        $settings = $this->getSettings();
-        if (! property_exists($settings, 'keepLocal') || ! $settings->keepLocal) {
-            Craft::debug('- deleting tmp local volume file:' . $path, 'remote-core');
-            if (file_exists($path)) {
-                unlink($path);
-            } else {
-                Craft::debug('- file does not exist: '  . $path, 'remote-core');
-            }
+        // Zip up the locally copied volume files
+        try {
+            $this->createVolumesZip($tmpDirName, $tmpZipPath);
+        } catch (Throwable $e) {
+            Craft::debug("Zipping local volume files failed, cleaning up tmp directory and zip file.", "remote-core");
+            Craft::debug("- " . $tmpDirName, "remote-core");
+            Craft::debug("- " . $tmpZipPath, "remote-core");
+            $this->rmDir($tmpDirName);
+            $this->rmPath($tmpZipPath);
+            throw $e;
         }
-        Craft::debug("- total time to create and push volume zip: " . (string) (microtime(true) - $time1)  . " seconds", "remote-core");
+
+        $this->rmDir($tmpDirName);
+
+        // Push zip to remote destination
+        try {
+            $this->push($tmpZipPath);
+        } catch (Throwable $e) {
+            Craft::debug("Volume push failed, cleaning up local volume zip file:"  . $tmpZipPath, "remote-core");
+            $this->rmPath($tmpZipPath);
+            throw $e;
+        }
+
+        // Keep or delete the local zip file
+        if (!property_exists($settings, 'keepLocal') || !$settings->keepLocal) {
+            Craft::debug('Deleting tmp local volume zip file:' . $tmpZipPath, 'remote-core');
+            $this->rmPath($tmpZipPath);
+        }
+
+        Craft::debug("Volumes successfully pushed in : " . (string) (microtime(true) - $time)  . " seconds", "remote-core");
 
         return $filename;
     }
@@ -181,19 +194,20 @@ abstract class ProviderService extends Component implements ProviderInterface
      */
     public function pullDatabase($filename)
     {
-        // Before pulling a database, backup the local
         $settings = $this->getSettings();
+        $path = $this->getLocalDir() . DIRECTORY_SEPARATOR . $filename;
+
+        // Before pulling a database, backup the local
         if (property_exists($settings, 'keepEmergencyBackup') && $settings->keepEmergencyBackup) {
             $this->createDatabaseDump("emergency-backup");
         }
 
         // Pull down the remote volume zip file
-        $path = $this->getLocalDir() . DIRECTORY_SEPARATOR . $filename;
         try {
             $this->pull($filename, $path);
         } catch (Throwable $e) {
             Craft::debug("Database pull failed, cleaning up local file:" . $path, "remote-core");
-            unlink($path);
+            $this->rmPath($path);
             throw $e;
         }
 
@@ -202,7 +216,7 @@ abstract class ProviderService extends Component implements ProviderInterface
             Craft::$app->getDb()->restore($path);
         } catch (Throwable $e) {
             Craft::debug("Database restore failed, cleaning up local file:" . $path, "remote-core");
-            unlink($path);
+            $this->rmPath($path);
             throw $e;
         }
 
@@ -212,7 +226,7 @@ abstract class ProviderService extends Component implements ProviderInterface
             Craft::$app->queue->releaseAll();
         }
 
-        unlink($path);
+        $this->rmPath($path);
     }
 
     /**
@@ -225,34 +239,47 @@ abstract class ProviderService extends Component implements ProviderInterface
      */
     public function pullVolume($filename)
     {
-        // Before pulling volumes, create an emergency backup
         $settings = $this->getSettings();
+
+        // Before pulling volumes, create an emergency backup
         if (property_exists($settings, 'keepEmergencyBackup') && $settings->keepEmergencyBackup) {
-            $tmpDir = $this->copyVolumeFilesToTmp();
-            $this->createVolumesZip("emergency-backup", $tmpDir);
-            $this->rmDir($tmpDir);
+            $emergencyTmpDir = $this->createTmpDirName();
+            $emergencyTmpZipPath = $this->createTmpZipPath("emergency-backup");
+            try {
+                $this->copyVolumeFilesToTmp($emergencyTmpDir);
+                $this->createVolumesZip($emergencyTmpDir, $emergencyTmpZipPath);
+                $this->rmDir($emergencyTmpDir);
+            } catch (Throwable $e) {
+                Craft::debug("Emergency volume backup failed, cleaning up files and folders", "remote-core");
+                Craft::debug("- " . $emergencyTmpDir, "remote-core");
+                Craft::debug("- " . $emergencyTmpZipPath, "remote-core");
+                $this->rmPath($emergencyTmpZipPath);
+                $this->rmDir($emergencyTmpDir);
+                throw $e;
+            }
         }
 
+        $tmpZipPath = $this->getLocalDir() . DIRECTORY_SEPARATOR . $filename;
+
         // Pull down the remote volume zip file
-        $path = $this->getLocalDir() . DIRECTORY_SEPARATOR . $filename;
         try {
-            $this->pull($filename, $path);
-        }  catch (Throwable $e) {
-            Craft::debug("Volume pull failed, cleaning up local file:" . $path, "remote-core");
-            unlink($path);
+            $this->pull($filename, $tmpZipPath);
+        } catch (Throwable $e) {
+            Craft::debug("Volume pull failed, cleaning up local file:" . $tmpZipPath, "remote-core");
+            $this->rmPath($tmpZipPath);
             throw $e;
         }
 
         // Restore the locally pulled volume zip file
         try {
-            $this->restoreVolumesZip($path);
-        }  catch (Throwable $e) {
-            Craft::debug("Volume restore failed, cleaning up local file:" . $path, "remote-core");
-            unlink($path);
+            $this->restoreVolumesZip($tmpZipPath);
+        } catch (Throwable $e) {
+            Craft::debug("Volume restore failed, cleaning up local file:" . $tmpZipPath, "remote-core");
+            $this->rmPath($tmpZipPath);
             throw $e;
         }
 
-        unlink($path);
+        $this->rmPath($tmpZipPath);
     }
 
     /**
@@ -285,43 +312,39 @@ abstract class ProviderService extends Component implements ProviderInterface
      * Copy Volume Files To Tmp
      * 
      * Copy all files across all volumes to a local temporary directory, ready
-     * to be zipped up.
+     * to be zipped.
      * 
-     * @return string $path to the temporary directory containing the volumes
+     * @return bool if the copy was successful
      */
-    private function copyVolumeFilesToTmp(): string
+    private function copyVolumeFilesToTmp($tmpDir): bool
     {
-        Craft::debug("Copying volume files to temp directory", "remote-core");
-        
         $volumes = Craft::$app->getVolumes()->getAllVolumes();
-        $tmpDirName = Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . strtolower(StringHelper::randomString(10));
-        Craft::debug("-- tmp path: "  . $tmpDirName, "remote-core");
+        $time = microtime(true);
 
         if (count($volumes) <= 0) {
-            Craft::debug("-- no volumes configured, skipping zipping", "remote-core");
-            return null;
+            Craft::debug("No volumes configured, skipping copy", "remote-core");
+            return false;
         }
-        
-        $time = microtime(true); 
+
         foreach ($volumes as $volume) {
             // Get all files in the volume.
             $fileSystem = $volume->getFs();
             $fsListings = $fileSystem->getFileList('/', true);
 
             // Create tmp location
-            $tmpPath = $tmpDirName . DIRECTORY_SEPARATOR  . $volume->handle;
-            if (! file_exists($tmpPath)) {
+            $tmpPath = $tmpDir . DIRECTORY_SEPARATOR  . $volume->handle;
+            if (!file_exists($tmpPath)) {
                 mkdir($tmpPath, 0777, true);
             }
 
             foreach ($fsListings as $fsListing) {
                 $localDirname = $tmpPath . DIRECTORY_SEPARATOR . $fsListing->getDirname();
                 $localPath = $tmpPath . DIRECTORY_SEPARATOR . $fsListing->getUri();
-            
+
                 if ($fsListing->getIsDir()) {
                     mkdir($localPath, 0777, $recursive = true);
                 } else {
-                    if ($localDirname && ! file_exists($localDirname)) {
+                    if ($localDirname && !file_exists($localDirname)) {
                         mkdir($localDirname, 0777, true);
                     }
                     $src = $fileSystem->getFileStream($fsListing->getUri());
@@ -329,14 +352,13 @@ abstract class ProviderService extends Component implements ProviderInterface
                     stream_copy_to_stream($src, $dst);
                     fclose($src);
                     fclose($dst);
-
                 }
             }
-            
         }
-        Craft::debug("- time to copy volume files to local temp folder:" . (string) (microtime(true) - $time)  . " seconds", "remote-core");
 
-        return $tmpDirName;
+        Craft::debug("Volume successfully files copied to local tmp folder in " . (string) (microtime(true) - $time)  . " seconds", "remote-core");
+
+        return true;
     }
 
     /**
@@ -348,23 +370,15 @@ abstract class ProviderService extends Component implements ProviderInterface
      * @return string $path the temporary path to the new zip file
      * @since 1.0.0
      */
-    private function createVolumesZip($filename, $tmpDir): string
+    private function createVolumesZip($srcDir, $dstPath): string
     {
-        $path = $this->getLocalDir() . DIRECTORY_SEPARATOR . $filename . '.zip';
-        
-        Craft::debug("Creating zip from tmp volume files", "remote-core");
-        Craft::debug("-- tmp dir: "  . $tmpDir, "remote-core");
-        Craft::debug("-- zip path: "  . $path, "remote-core");
-        
-        if (file_exists($path)) {
-            Craft::debug("-- old zip file exists, deleting...", "remote-core");
-            unlink($path);
+        if (file_exists($dstPath)) {
+            $this->rmPath($dstPath);
         }
 
-        Craft::debug("-- recursively zipping tmp directory", "remote-core");
-        ZipHelper::recursiveZip($tmpDir, $path);
+        ZipHelper::recursiveZip($srcDir, $dstPath);
 
-        return $path;
+        return $dstPath;
     }
 
     /**
@@ -379,11 +393,7 @@ abstract class ProviderService extends Component implements ProviderInterface
     private function restoreVolumesZip($zipPath)
     {
         $volumes = Craft::$app->getVolumes()->getAllVolumes();
-        $tmpDir = Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . strtolower(StringHelper::randomString(10));
-
-        Craft::debug("Restoring volume files", "remote-core");
-        Craft::debug("-- tmp dir: "  . $tmpDir, "remote-core");
-        Craft::debug("-- zip path: " . $zipPath, "remote-core");
+        $tmpDir = $this->createTmpDirName();
 
         // Unzip files to temp folder
         ZipHelper::unzip($zipPath, $tmpDir);
@@ -406,7 +416,6 @@ abstract class ProviderService extends Component implements ProviderInterface
                             $fs->writeFileFromStream($relPath, $stream);
                             fclose($stream);
                         }
-                        
                     }
                 }
             }
@@ -449,6 +458,31 @@ abstract class ProviderService extends Component implements ProviderInterface
         $systemEnv = Craft::$app->env;
         $filename = ($systemName ? $systemName . '_' : '') . ($systemEnv ? $systemEnv . '_' : '') . gmdate('ymd_His') . '_' . strtolower(StringHelper::randomString(10)) . '_' . $currentVersion;
         return mb_strtolower($filename);
+    }
+
+    /**
+     * Create Tmp Dir Name
+     * 
+     * Create a random temporary directory path
+     * 
+     * NOTE: This doesn't actually create the directory
+     * 
+     * @since 1.1.0
+     * @return string a path to a random directory
+     */
+    private function createTmpDirName(): string
+    {
+        return Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . strtolower(StringHelper::randomString(10));
+    }
+
+    /**
+     * Generate Temporary Zip Path 
+     * 
+     * Note: This doesn't actually create the zip file, just the path. 
+     */
+    private function createTmpZipPath($filename): string
+    {
+        return $this->getLocalDir() . DIRECTORY_SEPARATOR . $filename . '.zip';
     }
 
     /**
@@ -501,11 +535,26 @@ abstract class ProviderService extends Component implements ProviderInterface
         return $this->plugin->getSettings();
     }
 
-    private function rmDir($dir) {
+    /**
+     * Remove Directory
+     * 
+     */
+    private function rmDir($dir)
+    {
         FileHelper::clearDirectory($dir);
         if (file_exists($dir)) {
             rmdir($dir);
         }
     }
-}
 
+    /**
+     * Remote Path
+     * 
+     */
+    private function rmPath($path)
+    {
+        if (file_exists($path)) {
+            unlink($path);
+        }
+    }
+}
