@@ -8,9 +8,9 @@
       }
 
       this.$form = $("form", this.$element);
+      this.$showAll = $(".rb-show-all", this.$element);
       this.$table = $("table", this.$element);
       this.$tbody = $("tbody", this.$table);
-      this.$showAllRow = $(".show-all-row", this.$tbody);
       this.$submit = $("input.submit", this.$form);
       this.$loadingOverlay = $(".rb-utilities-overlay", this.$element);
 
@@ -29,10 +29,10 @@
       this.$form.on("submit", this.push.bind(this));
 
       // Show all rows
-      this.$showAllRow.find("a").on(
+      this.$showAll.find("a").on(
         "click",
         function (e) {
-          this.$showAllRow.hide();
+          this.$showAll.hide();
           this.$table.removeClass("rb-utilities-table--collapsed");
           e.preventDefault();
         }.bind(this)
@@ -74,66 +74,70 @@
       this.$tbody.find(".errors-row").show();
     },
 
-    updateTable: function (options, error) {
+    updateTable: function (files, error) {
       if (error) {
         this.showTableErrors();
         return false;
       }
 
-      if (options.length <= 0) {
+      if (files.length <= 0) {
         this.showTableNoResults();
         return false;
       }
 
       // Backups are ordered newest to oldest ([0] = most recent) but we
       // prepend them instead of append them to make it easier to style
-      for (var i = options.length - 1; i >= 0; i--) {
-        var $row = this.$tbody
+      for (var i = files.length - 1; i >= 0; i--) {
+        var file = files[i];
+        var $tr = this.$tbody
           .find(".template-row")
           .clone()
-          .removeClass("template-row default-row");
+          .removeClass("template-row default-row")
+          .addClass("rb-utilities-row");
+        var $tds = $tr.find("td");
 
-        var $td = $row.find("td:first");
-        $td.addClass("rb-utilities-row");
-        
-        // Add date
-        var $span = $("<span>").text(options[i].text).attr("title", options[i].title);
-        $td.append($span);
+        $tds.eq(0).text(file.date).attr("title", file.filename);
+        $tds.eq(1).text(file.time).attr("title", file.timesince);
+        $tds.eq(2).text(file.env);
+        $tds.eq(3).text(file.version);
 
-        // Add "latest" bubble
         if (i === 0) {
-          $td.append($("<span>", {
-              class: "rb-utilities-bubble"
-          }).text("latest"));
-        } else {
-          $row.removeClass("first");
+          $tr.addClass("first");
+          $tds.eq(0).append(
+            $("<span>", {
+              class: "rb-utilities-bubble",
+            }).text("latest")
+          );
         }
 
         // Add "Pull" button
-        var $pullButton = $row.find(".pull-button");
-        if ($pullButton.length > 0) {
-            this.addListener(
-            $row.find(".pull-button"),
-            "click",
-            this.pull.bind(this, options[i].filename)
-            );
-        }
-        
-        // Add "Delete" button
-        var $deleteButton = $row.find(".delete-button");
-        if ($deleteButton.length > 0) {
-            this.addListener(
-            $row.find(".delete-button"),
-            "click",
-            this.delete.bind(this, options[i].filename)
-            );
-        }
+        // var $pullButton = $row.find(".pull-button");
+        // if ($pullButton.length > 0) {
+        //     this.addListener(
+        //     $row.find(".pull-button"),
+        //     "click",
+        //     this.pull.bind(this, files[i].filename)
+        //     );
+        // }
 
-        this.$tbody.prepend($row);
+        // Add "Delete" button
+        // var $deleteButton = $row.find(".delete-button");
+        // if ($deleteButton.length > 0) {
+        //     this.addListener(
+        //     $row.find(".delete-button"),
+        //     "click",
+        //     this.delete.bind(this, files[i].filename)
+        //     );
+        // }
+
+        this.$tbody.prepend($tr);
       }
 
-      if (options.length > 3) {
-        this.$showAllRow.show();
+      if (files.length > 3) {
+        this.$showAll
+          .find("a")
+          .text(this.$showAll.find("a").text() + " (" + files.length + ")");
+        this.$showAll.show();
       }
 
       return true;
@@ -190,7 +194,7 @@
         dataType: "json",
         success: function (response) {
           if (response["success"]) {
-            this.updateTable(response["options"]);
+            this.updateTable(response["files"]);
           } else {
             var message = "Error fetching files";
             if (response["error"]) {

@@ -8,7 +8,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
+- Added timezone handling to files to give accurate dates and times
 - Better error handling. Temporary files are deleted more reliably now when something goes wrong, avoiding issues with disk space getting eaten up.
+
+### Changes
+
+- Improved the utilities interface, converting to a more readable table with multiple columns.
 
 ### Fixed
 

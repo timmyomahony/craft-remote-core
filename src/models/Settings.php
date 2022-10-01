@@ -69,9 +69,7 @@ abstract class Settings extends Model
     public $hideDatabases = false;
     public $hideVolumes = false;
 
-    public $displayDateFormat = "Y-m-d H:i:s";
-
-    
+    public $displayDateFormat = "Y-m-d";
 
     public function rules(): array
     {
