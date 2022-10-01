@@ -84,6 +84,8 @@ class AWSProvider extends ProviderService
      */
     public function push($path)
     {
+        sleep(10);
+        throw new ProviderException("Manual exception");
         $client = $this->getClient();
         $pathInfo = pathinfo($path);
         $key = $this->getPrefixedKey($pathInfo['basename']);

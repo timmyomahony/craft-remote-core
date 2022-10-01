@@ -1,6 +1,8 @@
 <?php
 namespace weareferal\remotecore\services;
 
+use Throwable;
+
 use weareferal\remotecore\RemoteCore;
 use weareferal\remotecore\helpers\ZipHelper;
 use weareferal\remotecore\helpers\RemoteFile;
@@ -109,10 +111,16 @@ abstract class ProviderService extends Component implements ProviderInterface
 
         Craft::debug('New database sql path:' . $path, 'remote-core');
 
-        $this->push($path);
+        try {
+            $this->push($path);
+        } catch (Throwable $e) {
+            Craft::debug("- cleaning up local database zip file:" . $path, "remote-core");
+            unlink($path);
+            throw $e;
+        }
 
         if (! property_exists($settings, 'keepLocal') || ! $settings->keepLocal) {
-            Craft::debug('Deleting local volume zip file:' . $path, 'remote-core');
+            Craft::debug('Deleting local database zip file:' . $path, 'remote-core');
             unlink($path);
         }
 
@@ -141,8 +149,14 @@ abstract class ProviderService extends Component implements ProviderInterface
         Craft::debug('- new volume zip path:' . $zipPath, 'remote-core');
 
         // Push zip to remote destination
-        $time2 = microtime(true); 
-        $this->push($zipPath);
+        $time2 = microtime(true);
+        try {
+            $this->push($zipPath);
+        } catch (Throwable $e) {
+            Craft::debug("- cleaning up local volume zip file:"  . $zipPath, "remote-core");
+            unlink($zipPath);
+            throw $e;
+        }
         Craft::debug("- time to push volume zip: " . (string) (microtime(true) - $time2)  . " seconds", "remote-core");
 
         // Keep or delete the created zip file
