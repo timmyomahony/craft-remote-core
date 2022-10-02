@@ -28,7 +28,7 @@ class RemoteFile
     // - Version (captured)
     // - Extension
     private static $legacyRegex = '/^(?:[a-zA-Z0-9\-]+)\_(?:([a-zA-Z0-9\-]+)\_)?(\d{6}\_\d{6})\_(?:[a-zA-Z0-9]+)\_(?:([va-zA-Z0-9\.\-]+))\.(?:\w{2,10})$/';
-    private static $regex = '/^\[(?:[a-zA-Z0-9\-]+)\]\[(?:([a-zA-Z0-9\-]+))\]\[?(\d{6}\_\d{6})\]\[(?:[a-zA-Z0-9]+)\]\[(?:([va-zA-Z0-9\.\-]+))\]\.(?:\w{2,10})$/';
+    private static $regex = '/^(?:[a-zA-Z0-9\-]+)\_\_(?:([a-zA-Z0-9\-]+)\_\_)?(\d{6}\_\d{6})\_\_(?:[a-zA-Z0-9]+)\_\_(?:([va-zA-Z0-9\.\-]+))\.(?:\w{2,10})$/';
 
     public function __construct($filename)
     {
@@ -55,7 +55,11 @@ class RemoteFile
         $files = [];
 
         foreach ($filenames as $filename) {
-            array_push($files, new RemoteFile($filename));
+            try {
+                array_push($files, new RemoteFile($filename));
+            } catch (\Throwable $e) {
+                Craft::$app->getErrorHandler()->logException($e);
+            }
         }
 
         uasort($files, function ($b1, $b2) {
