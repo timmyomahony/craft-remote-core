@@ -27,12 +27,16 @@ class RemoteFile
     // - Random string
     // - Version (captured)
     // - Extension
-    private static $regex = '/^(?:[a-zA-Z0-9\-]+)\_(?:([a-zA-Z0-9\-]+)\_)?(\d{6}\_\d{6})\_(?:[a-zA-Z0-9]+)\_(?:([va-zA-Z0-9\.\-]+))\.(?:\w{2,10})$/';
+    private static $legacyRegex = '/^(?:[a-zA-Z0-9\-]+)\_(?:([a-zA-Z0-9\-]+)\_)?(\d{6}\_\d{6})\_(?:[a-zA-Z0-9]+)\_(?:([va-zA-Z0-9\.\-]+))\.(?:\w{2,10})$/';
+    private static $regex = '/^\[(?:[a-zA-Z0-9\-]+)\]\[(?:([a-zA-Z0-9\-]+))\]\[?(\d{6}\_\d{6})\]\[(?:[a-zA-Z0-9]+)\]\[(?:([va-zA-Z0-9\.\-]+))\]\.(?:\w{2,10})$/';
 
     public function __construct($filename)
     {
         // Extract values from filename
         preg_match(RemoteFile::$regex, $filename, $matches);
+        if (count($matches) <= 0) {
+            preg_match(RemoteFile::$legacyRegex, $filename, $matches);
+        }
 
         // UTC to timezone
         $datetime = DateTime::createFromFormat(
