@@ -11,6 +11,8 @@ use craft\base\Model;
  */
 abstract class Settings extends Model
 {
+    // Seemd redundant but allows the plugins to be enabled/disabled on
+    // different environments via configuration settings, which is useful.
     public $enabled = true;
 
     public $cloudProvider = 's3';
