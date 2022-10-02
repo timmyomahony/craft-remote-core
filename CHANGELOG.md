@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changes
 
-- Improved the utilities interface, converting to a more readable table with multiple columns ([issue #10 on `craft-remote-backup`](https://github.com/weareferal/craft-remote-backup/issues/10))
+- Improved the utilities interface, converting to a more readable table with multiple columns ([issue #10 on `craft-remote-backup`](https://github.com/weareferal/craft-remote-backup/issues/10), [issue #43 on `craft-remote-sync`](https://github.com/weareferal/craft-remote-sync/issues/43))
 
 ### Fixed
 
