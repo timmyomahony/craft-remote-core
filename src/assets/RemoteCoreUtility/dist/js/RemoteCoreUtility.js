@@ -111,24 +111,24 @@
         }
 
         // Add "Pull" button
-        // var $pullButton = $row.find(".pull-button");
-        // if ($pullButton.length > 0) {
-        //     this.addListener(
-        //     $row.find(".pull-button"),
-        //     "click",
-        //     this.pull.bind(this, files[i].filename)
-        //     );
-        // }
+        var $pullButton = $tds.find(".pull-button");
+        if ($pullButton.length > 0) {
+            this.addListener(
+            $tds.find(".pull-button"),
+            "click",
+            this.pull.bind(this, files[i].filename)
+            );
+        }
 
         // Add "Delete" button
-        // var $deleteButton = $row.find(".delete-button");
-        // if ($deleteButton.length > 0) {
-        //     this.addListener(
-        //     $row.find(".delete-button"),
-        //     "click",
-        //     this.delete.bind(this, files[i].filename)
-        //     );
-        // }
+        var $deleteButton = $tds.find(".delete-button");
+        if ($deleteButton.length > 0) {
+            this.addListener(
+            $tds.find(".delete-button"),
+            "click",
+            this.delete.bind(this, files[i].filename)
+            );
+        }
 
         this.$tbody.prepend($tr);
       }
