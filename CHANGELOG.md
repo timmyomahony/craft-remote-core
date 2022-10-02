@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 - Improved the utilities interface, converting to a more readable table with multiple columns ([issue #10](https://github.com/weareferal/craft-remote-backup/issues/10), [issue #43](https://github.com/weareferal/craft-remote-sync/issues/43))
 - Changed the filename formatting to use brackets instead of underscores ([issue #45](https://github.com/weareferal/craft-remote-sync/issues/45)).
+- Changed file listing to avoid crashing when an unreadable filename is received.
 
 ### Fixed
 
