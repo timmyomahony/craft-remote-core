@@ -9,11 +9,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
 
 - Added timezone handling to files to give accurate dates and times
-- Better error handling. Temporary files are deleted more reliably now when something goes wrong, avoiding issues with disk space getting eaten up.
+- Better error handling. Temporary files are deleted more reliably now when something goes wrong, avoiding issues with disk space getting eaten up. ([issue #36 on `craft-remote-backup`](https://github.com/weareferal/craft-remote-backup/issues/36))
 
 ### Changes
 
-- Improved the utilities interface, converting to a more readable table with multiple columns.
+- Improved the utilities interface, converting to a more readable table with multiple columns ([issue #10 on `craft-remote-backup`](https://github.com/weareferal/craft-remote-backup/issues/10))
 
 ### Fixed
 
