@@ -11,9 +11,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Added timezone handling to files to give accurate dates and times
 - Better error handling. Temporary files are deleted more reliably now when something goes wrong, avoiding issues with disk space getting eaten up. ([issue #36 on `craft-remote-backup`](https://github.com/weareferal/craft-remote-backup/issues/36))
 
-### Changes
+### Changed
 
-- Improved the utilities interface, converting to a more readable table with multiple columns ([issue #10 on `craft-remote-backup`](https://github.com/weareferal/craft-remote-backup/issues/10), [issue #43 on `craft-remote-sync`](https://github.com/weareferal/craft-remote-sync/issues/43))
+- Improved the utilities interface, converting to a more readable table with multiple columns ([issue #10](https://github.com/weareferal/craft-remote-backup/issues/10), [issue #43](https://github.com/weareferal/craft-remote-sync/issues/43))
+- Changed the filename formatting to use brackets instead of underscores ([issue #45](https://github.com/weareferal/craft-remote-sync/issues/45)).
 
 ### Fixed
 
