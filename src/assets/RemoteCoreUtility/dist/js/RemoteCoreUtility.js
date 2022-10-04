@@ -100,6 +100,7 @@
         $tds.eq(1).text(file.time).attr("title", file.timesince);
         $tds.eq(2).text(file.env);
         $tds.eq(3).text(file.version);
+        $tds.eq(4).text(file.size);
 
         if (i === 0) {
           $tr.addClass("first");

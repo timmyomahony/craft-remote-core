@@ -19,6 +19,7 @@ class RemoteFile
     public $datetime;
     public $env;
     public $version;
+    public $size;
 
     // Regex to capture/match:
     // - Site name
@@ -30,7 +31,7 @@ class RemoteFile
     private static $legacyRegex = '/^(?:[a-zA-Z0-9\-]+)\_(?:([a-zA-Z0-9\-]+)\_)?(\d{6}\_\d{6})\_(?:[a-zA-Z0-9]+)\_(?:([va-zA-Z0-9\.\-]+))\.(?:\w{2,10})$/';
     private static $regex = '/^(?:[a-zA-Z0-9\-]+)\_\_(?:([a-zA-Z0-9\-]+)\_\_)?(\d{6}\_\d{6})\_\_(?:[a-zA-Z0-9]+)\_\_(?:([va-zA-Z0-9\.\-]+))\.(?:\w{2,10})$/';
 
-    public function __construct($filename)
+    public function __construct($filename, $size)
     {
         // Extract values from filename
         preg_match(RemoteFile::$regex, $filename, $matches);
@@ -46,42 +47,59 @@ class RemoteFile
         $datetime->setTimezone(new DateTimeZone(date_default_timezone_get()));
         
         $this->filename = $filename;
+        $this->size = $size;
         $this->datetime = $datetime;
         $this->env = $matches[1];
         $this->version = $matches[3];
     }
 
-    public static function createArray($filenames) {
-        $files = [];
+    /**
+     * Friendly Size
+     * 
+     * A human-readable size of this file
+     * 
+     * https://stackoverflow.com/a/2510459/396300
+     */
+    protected function friendlySize($precision = 2) {
+        $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+        $bytes = max($this->size, 0); 
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
+        $pow = min($pow, count($units) - 1); 
+        $bytes /= (1 << (10 * $pow)); 
+        return round($bytes, $precision) . ' ' . $units[$pow]; 
+    } 
 
-        foreach ($filenames as $filename) {
-            try {
-                array_push($files, new RemoteFile($filename));
-            } catch (\Throwable $e) {
-                Craft::$app->getErrorHandler()->logException($e);
-            }
-        }
-
-        uasort($files, function ($b1, $b2) {
+    /**
+     * Sort
+     * 
+     * Sort an array of RemoteFiles
+     */
+    public static function sort($remote_files) {
+        uasort($remote_files, function ($b1, $b2) {
             return $b1->datetime <=> $b2->datetime;
         });
-
-        return array_reverse($files);
+        return array_reverse($remote_files);
     }
 
-    public static function toObject($array, $dateFormat="Y-m-d") {
-        $files = [];
-        foreach ($array as $i => $file) {
+    /**
+     * Serialize
+     * 
+     * Serialize an array of RemoteFiles so that they can be converted to JSON
+     */
+    public static function serialize($remoteFiles, $dateFormat="Y-m-d") {
+        $objects = [];
+        foreach ($remoteFiles as $i => $file) {
             $timesince = TimeHelper::time_since($file->datetime->getTimestamp());
-            $files[$i] = [
+            $objects[$i] = [
                 "filename" => $file->filename,
                 "date" => $file->datetime->format($dateFormat),
                 "time" => $file->datetime->format("H:i:s"),
                 "timesince" => $timesince,
                 "env" => $file->env,
                 "version" => $file->version,
+                "size" => $file->friendlySize()
             ];
         }
-        return $files;
+        return $objects;
     }
 }

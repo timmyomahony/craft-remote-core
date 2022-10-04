@@ -11,6 +11,7 @@ use Google_Service_Drive_DriveFile;
 
 use weareferal\remotecore\services\ProviderService;
 use weareferal\remotecore\exceptions\ProviderException;
+use weareferal\remotecore\helpers\RemoteFile;
 
 
 /**
@@ -89,22 +90,22 @@ class GoogleDriveProvider extends ProviderService
             'supportsAllDrives' => true,
             'spaces' => 'drive',
             'q' => $q,
+            'fields' => 'files(name, size)'
         );
 
         try {
-            $results = $service->files->listFiles($params);
+            $files = $service->files->listFiles($params);
         } catch (Google_Exception $exception) {
-            Craft::debug("Couldn't push Google Drive file", 'remote-sync');
-            Craft::debug($filterExtension, 'remote-sync');
             throw new ProviderException($exception->getMessage());
         }
 
-        $filenames = [];
-        foreach ($results as $result) {
-            array_push($filenames, $result->getName());
+        $remote_files = [];
+        foreach ($files as $file) {
+            Craft::info($file->getSize(), "remote-core");
+            array_push($remote_files, new RemoteFile($file->getName(), $file->getSize()));
         }
 
-        return $filenames;
+        return $remote_files;
     }
 
     /**

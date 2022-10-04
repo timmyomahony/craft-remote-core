@@ -10,6 +10,7 @@ use Aws\S3\MultipartUploader;
 
 use weareferal\remotecore\services\ProviderService;
 use weareferal\remotecore\exceptions\ProviderException;
+use weareferal\remotecore\helpers\RemoteFile;
 
 
 /**
@@ -59,21 +60,21 @@ class AWSProvider extends ProviderService
         }
         $response = $client->listObjects($kwargs);
 
-        $objects = $response['Contents'];
-        if (!$objects) {
+        $files = $response['Contents'];
+        if (!$files) {
             return [];
         }
 
-        $keys = [];
-        foreach ($objects as $object) {
-            array_push($keys, basename($object['Key']));
+        $remote_files = [];
+        foreach ($files as $file) {
+            array_push($remote_files, new RemoteFile(basename($file['Key']), $file['Size']));
         }
 
         if ($filterExtension) {
-            return $this->filterByExtension($keys, $filterExtension);
+            return $this->filterByExtension($remote_files, $filterExtension);
         }
 
-        return $keys;
+        return $remote_files;
     }
 
     /**

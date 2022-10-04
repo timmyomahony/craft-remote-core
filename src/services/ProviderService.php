@@ -85,7 +85,8 @@ abstract class ProviderService extends Component implements ProviderInterface
      */
     public function listDatabases(): array
     {
-        return RemoteFile::createArray($this->list(".sql"));
+        $remote_files = $this->list(".sql");
+        return RemoteFile::sort($remote_files);
     }
 
     /**
@@ -96,7 +97,8 @@ abstract class ProviderService extends Component implements ProviderInterface
      */
     public function listVolumes(): array
     {
-        return RemoteFile::createArray($this->list(".zip"));
+        $remote_files = $this->list(".zip");
+        return RemoteFile::sort($remote_files);
     }
 
     /**
@@ -511,15 +513,15 @@ abstract class ProviderService extends Component implements ProviderInterface
      * @param string The file extension to filter by
      * @return array The filtered filenames
      */
-    protected function filterByExtension($filenames, $extension)
+    protected function filterByExtension($remote_files, $extension)
     {
-        $filtered_filenames = [];
-        foreach ($filenames as $filename) {
-            if (substr($filename, -strlen($extension)) === $extension) {
-                array_push($filtered_filenames, basename($filename));
+        $filtered_remote_files = [];
+        foreach ($remote_files as $remote_file) {
+            if (substr($remote_file->filename, -strlen($extension)) === $extension) {
+                array_push($filtered_remote_files, basename($remote_file->filename));
             }
         }
-        return $filtered_filenames;
+        return $filtered_remote_files;
     }
 
     /**
