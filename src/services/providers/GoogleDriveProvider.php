@@ -67,12 +67,11 @@ class GoogleDriveProvider extends ProviderService
      * Return Google Drive files
      * 
      * https://github.com/googleapis/google-api-php-client-services/blob/82f6213007f4d2acccdafd1372fd88447f728008/src/Google/Service/Drive/Resource/Files.php#L230
+     * https://github.com/googleapis/google-api-php-client/blob/main/examples/large-file-upload.php
      * 
      * @param string $extension The file extension to filter the results by
      * @return array[string] An array of files from Google Drive
      * @since 1.1.0
-     * @todo I've just thrown parameters at the wall to get team drives working.
-     * Google are not clear whether these parameters actually are needed.
      */
     public function list($filterExtension): array
     {
@@ -118,21 +117,23 @@ class GoogleDriveProvider extends ProviderService
     {
         $mimeType = mime_content_type($localPath);
         $googleDriveFolderId = Craft::parseEnv($this->plugin->settings->googleDriveFolderId);
-        $service = new Google_Service_Drive($this->getClient());
-        $gFile = new Google_Service_Drive_DriveFile();
-        $gFile->setName(basename($localPath));
+        $driveFile = new Google_Service_Drive_DriveFile();
+        $driveFile->setName(basename($localPath));
         # Upload to specified folder
+        $googleDriveFolderId = Craft::parseEnv($this->plugin->settings->googleDriveFolderId);
         if ($googleDriveFolderId) {
-            $gFile->setParents([$googleDriveFolderId]);
+            $driveFile->setParents([$googleDriveFolderId]);
         }
 
         // Set chunk size
         $chunkSizeBytes = 1 * 1024 * 1024;
 
         // Call the API with the media upload, defer so it doesn't immediately return.
+        $client = $this->getClient();
         $client->setDefer(true);
         $client->setUseBatch(true);
-        $request = $service->files->create($gFile);
+        $service = new Google_Service_Drive($client);
+        $request = $service->files->create($driveFile);
 
         // Create a media file upload to represent our upload process.
         $media = new \Google\Http\MediaFileUpload(
@@ -163,6 +164,23 @@ class GoogleDriveProvider extends ProviderService
             $result = $status;
         }
         fclose($handle);
+    }
+
+    private function readVideoChunk($handle, $chunkSize)
+    {
+        $byteCount = 0;
+        $giantChunk = "";
+        while (!feof($handle)) {
+            // fread will never return more than 8192 bytes if the stream is read
+            // buffered and it does not represent a plain file
+            $chunk = fread($handle, 8192);
+            $byteCount += strlen($chunk);
+            $giantChunk .= $chunk;
+            if ($byteCount >= $chunkSize) {
+                return $giantChunk;
+            }
+        }
+        return $giantChunk;
     }
 
     /**
@@ -279,7 +297,6 @@ class GoogleDriveProvider extends ProviderService
     function getClient(): Google_Client
     {
         $client = new Google_Client();
-        $client->setApplicationName('Craft Remote Sync');
         $client->setScopes(Google_Service_Drive::DRIVE_FILE);
         $config = [
             'client_id' => Craft::parseEnv($this->plugin->settings->googleClientId),
