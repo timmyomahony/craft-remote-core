@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Better error handling. Temporary files are deleted more reliably now when something goes wrong, avoiding issues with disk space getting eaten up ([issue #36](https://github.com/weareferal/craft-remote-backup/issues/36)).
 - Added timezone handling to files to give accurate dates, times & "time since"
 - Added file chunking to Google Drive upload ([issue #11](https://github.com/weareferal/craft-remote-core/pull/11) thanks @joelzerner)
+- Added small icon to the utilities section to show current provider
 
 ### Changed
 
