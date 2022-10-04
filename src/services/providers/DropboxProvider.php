@@ -10,6 +10,7 @@ use Kunnu\Dropbox\DropboxFile;
 
 use weareferal\remotecore\services\ProviderService;
 use weareferal\remotecore\services\ProviderInterface;
+use weareferal\remotecore\helpers\RemoteFile;
 
 
 /**
@@ -60,18 +61,18 @@ class DropboxProvider extends ProviderService implements ProviderInterface
 
         $dropbox = $this->getClient();
         $folder = $dropbox->listFolder($dstPath);
-        $items = $folder->getItems();
+        $files = $folder->getItems();
 
-        $filenames = [];
-        foreach ($items->all() as $item) {
-            array_push($filenames, $item->getName());
+        $remote_files = [];
+        foreach ($files->all() as $file) {
+            array_push($remote_files, new RemoteFile($file->getName(), $file->getSize()));
         }
 
         if ($filterExtension) {
-            return $this->filterByExtension($filenames, $filterExtension);
+            return $this->filterByExtension($remote_files, $filterExtension);
         }
 
-        return $filenames;
+        return $remote_files;
     }
 
     /**
