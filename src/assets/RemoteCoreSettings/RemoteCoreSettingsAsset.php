@@ -20,6 +20,10 @@ class RemoteCoreSettingsAsset extends AssetBundle
             'js/RemoteCoreSettings.js'
         ];
 
+        $this->css = [
+            'css/RemoteCoreSettings.css',
+        ];
+
         parent::init();
     }
 }

@@ -1,4 +1,6 @@
 (function ($) {
+  /** global: Craft */
+  /** global: Garnish */
   Craft.RemoteCoreUtility = Garnish.Base.extend({
     init: function (id) {
       this.$element = $("#" + id);
