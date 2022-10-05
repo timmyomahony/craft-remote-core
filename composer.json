@@ -11,9 +11,7 @@
     ],
     "require": {
         "craftcms/cms": "^4.0.0",
-        "php": "^8.0.2",
-        "aws/aws-sdk-php": "^3.230",
-        "google/apiclient": "^2.12"
+        "php": "^8.0.2"
     },
     "autoload": {
         "psr-4": {
@@ -27,7 +25,7 @@
         "class": "weareferal\\remotecore\\RemoteCoreModule"
     },
     "suggest": {
-        "aws/aws-sdk-php": "Required for AWS S3 or Digital Ocean Spaces usage",
+        "aws/aws-sdk-php": "Required for AWS S3, Backblaze or Digital Ocean Spaces usage",
         "kunalvarma05/dropbox-php-sdk": "Required for Dropbox usage",
         "google/apiclient": "Required for Google Drive usage"
     },

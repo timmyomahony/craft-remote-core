@@ -18,10 +18,10 @@ abstract class RemoteCoreHelper
 {
     public static function registerModule()
     {
-        $moduleName = 'remote-core';
-        if (!Craft::$app->hasModule($moduleName)) {
-            Craft::$app->setModule($moduleName, new RemoteCoreModule($moduleName));
-            Craft::$app->getModule($moduleName);
+        $moduleId = 'remote-core';
+        if (!Craft::$app->hasModule($moduleId)) {
+            Craft::$app->setModule($moduleId, new RemoteCoreModule($moduleId));
+            Craft::$app->getModule($moduleId);
         }
     }
    

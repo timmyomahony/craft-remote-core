@@ -2,12 +2,11 @@
 
 namespace weareferal\remotecore\helpers;
 
-
 class TimeHelper
 {
     // https://stackoverflow.com/a/2916189/396300
     public static function time_since($time)
-    {
+    {   
         $time = time() - $time; // to get the time since that moment
         $time = ($time < 1) ? 1 : $time;
         $tokens = array(
@@ -23,7 +22,7 @@ class TimeHelper
         foreach ($tokens as $unit => $text) {
             if ($time < $unit) continue;
             $numberOfUnits = floor($time / $unit);
-            return $numberOfUnits . ' ' . $text . (($numberOfUnits > 1) ? 's' : '');
+            return $numberOfUnits . ' ' . $text . (($numberOfUnits > 1) ? 's' : '') . " ago";
         }
     }
 }

@@ -11,6 +11,8 @@ use craft\base\Model;
  */
 abstract class Settings extends Model
 {
+    // Seemd redundant but allows the plugins to be enabled/disabled on
+    // different environments via configuration settings, which is useful.
     public $enabled = true;
 
     public $cloudProvider = 's3';
@@ -69,9 +71,7 @@ abstract class Settings extends Model
     public $hideDatabases = false;
     public $hideVolumes = false;
 
-    public $displayDateFormat = "Y-m-d H:i:s";
-
-    
+    public $displayDateFormat = "Y-m-d";
 
     public function rules(): array
     {
