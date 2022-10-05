@@ -28,6 +28,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - [Issue #36](https://github.com/weareferal/craft-remote-backup/issues/36)
 - [Issue #43](https://github.com/weareferal/craft-remote-sync/issues/43)
 - [Issue #45](https://github.com/weareferal/craft-remote-sync/issues/45)
+- [Issue #34](https://github.com/weareferal/craft-remote-backup/issues/34)
+
+### Removed
+
+- Removed Dropbox due to issues with long-held tokens.
 
 ## 4.0.0 - 2022-08-18
 
