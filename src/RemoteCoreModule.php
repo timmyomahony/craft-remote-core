@@ -13,8 +13,9 @@ use weareferal\remotecore\services\ProviderFactory;
 class RemoteCoreModule extends Module
 {
     public function init() {
-        Craft::setAlias('@remote-core', $this->getBasePath());
-        $this->controllerNamespace = 'remote-core\controllers';
+        Craft::setAlias('@weareferal/remotecore', $this->getBasePath());
+        
+        $this->controllerNamespace = 'weareferal\remotecore\controllers';
 
         // Register provider factory
         $this->setComponents([

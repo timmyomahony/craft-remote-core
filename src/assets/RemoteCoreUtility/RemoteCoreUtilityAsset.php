@@ -10,7 +10,7 @@ class RemoteCoreUtilityAsset extends AssetBundle
 {
     public function init()
     {
-        $this->sourcePath = "@remote-core/assets/remotecoreutility/dist";
+        $this->sourcePath = "@weareferal/remotecore/assets/RemoteCoreUtility/dist";
 
         $this->depends = [
             CpAsset::class,
