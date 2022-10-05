@@ -8,21 +8,26 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
-- Added "file size" to the backup and sync output.
-- Better error handling. Temporary files are deleted more reliably now when something goes wrong, avoiding issues with disk space getting eaten up ([issue #36](https://github.com/weareferal/craft-remote-backup/issues/36)).
+- Temporary files are now deleted more reliably now when something goes wrong, avoiding issues with disk space getting eaten up.
+- Added a proper table layout to the utilties interface to improve readability.
+- Added "file size" to the utilities interface so you can now see how larger your files are.
 - Added timezone handling to files to give accurate dates, times & "time since"
-- Added file chunking to Google Drive upload ([issue #11](https://github.com/weareferal/craft-remote-core/pull/11) thanks @joelzerner)
-- Added small icon to the utilities section to show current provider
+- Added file chunking to Google Drive upload
+- Added small icon to the utilities section to show current cloud provider at-a-glance
 
 ### Changed
 
-- Improved the utilities interface, converting to a more readable table with multiple columns ([issue #10](https://github.com/weareferal/craft-remote-backup/issues/10), [issue #43](https://github.com/weareferal/craft-remote-sync/issues/43))
-- Changed the filename formatting to use brackets instead of underscores ([issue #45](https://github.com/weareferal/craft-remote-sync/issues/45)).
-- Changed file listing to avoid crashing when an unreadable filename is received.
+- Changed the filename formatting to use double underscores, improving reliability.
+- Refactored core module aliases for consistancy
+- Refactored the base provider service, improving logging.
 
 ### Fixed
 
-- Cleaned up the base provider service, improving logging.
+- [Issue #10](https://github.com/weareferal/craft-remote-backup/issues/10)
+- [Issue #11](https://github.com/weareferal/craft-remote-core/pull/11) (thanks @joelzerner)
+- [Issue #36](https://github.com/weareferal/craft-remote-backup/issues/36)
+- [Issue #43](https://github.com/weareferal/craft-remote-sync/issues/43)
+- [Issue #45](https://github.com/weareferal/craft-remote-sync/issues/45)
 
 ## 4.0.0 - 2022-08-18
 
