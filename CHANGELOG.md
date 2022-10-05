@@ -32,7 +32,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Removed
 
-- Removed Dropbox due to issues with long-held tokens.
+- Removed Dropbox temporarily due to issues with long-held tokens.
 
 ## 4.0.0 - 2022-08-18
 
