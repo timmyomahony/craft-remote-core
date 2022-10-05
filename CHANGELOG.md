@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - Added a proper table layout to the utilties interface to improve readability.
 - Added "file size" to the utilities interface so you can now see how larger your files are.
 - Added timezone handling to files to give accurate dates, times & "time since"
+- Added a "test connection" button to the settings
 - Added file chunking to Google Drive upload
 - Added small icon to the utilities section to show current cloud provider at-a-glance
 
