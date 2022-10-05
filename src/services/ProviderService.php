@@ -518,7 +518,7 @@ abstract class ProviderService extends Component implements ProviderInterface
         $filtered_remote_files = [];
         foreach ($remote_files as $remote_file) {
             if (substr($remote_file->filename, -strlen($extension)) === $extension) {
-                array_push($filtered_remote_files, basename($remote_file->filename));
+                array_push($filtered_remote_files, $remote_file);
             }
         }
         return $filtered_remote_files;
