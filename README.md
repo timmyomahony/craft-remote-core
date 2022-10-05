@@ -6,7 +6,6 @@ This module is used by `craft-remote-backup` and `create-remote-sync` for shared
 
 - AWS
 - Google Drive
-- Dropbox
 - Digital Ocean
 - Backblaze
 
