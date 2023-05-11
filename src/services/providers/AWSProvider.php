@@ -34,11 +34,9 @@ class AWSProvider extends ProviderService
      */
     public function isConfigured(): bool
     {
-        $accessKey = $this->getAccessKey();
-        $secretKey = $this->getSecretKey();
+        $bucketName = $this->getBucketName();
         $regionName = $this->getRegionName();
-        return isset($accessKey) &&
-            isset($secretKey) &&
+        return isset($bucketName) &&
             isset($regionName);
     }
 
@@ -178,16 +176,18 @@ class AWSProvider extends ProviderService
     private function getClient(): S3Client
     {
         $options = [
-            'credentials' => array(
-                'key'    => $this->getAccessKey(),
-                'secret' => $this->getSecretKey()
-            ),
             'version' => 'latest',
             'region'  => $this->getRegionName()
         ];
         $endpoint = $this->getEndpoint();
         if ($endpoint) {
             $options['endpoint'] = $endpoint;
+        }
+        if ($this->getAccessKey() && $this->getSecretKey()) {
+            $options['credentials'] = [
+                'key'    => $this->getAccessKey(),
+                'secret' => $this->getSecretKey(),
+            ];
         }
         return S3Client::factory($options);
     }
