@@ -15,6 +15,7 @@ use weareferal\remotecore\services\providers\GoogleDriveProvider;
 use weareferal\remotecore\services\providers\DigitalOceanProvider;
 
 use Craft;
+use craft\helpers\App;
 use craft\base\Component;
 use craft\helpers\FileHelper;
 use craft\helpers\StringHelper;
@@ -22,9 +23,9 @@ use craft\helpers\StringHelper;
 
 /**
  * Provider interface
- * 
+ *
  * Methods that all new providers must implement
- * 
+ *
  * @since 1.0.0
  */
 interface ProviderInterface
@@ -40,7 +41,7 @@ interface ProviderInterface
 
 /**
  * Base Prodiver
- * 
+ *
  * A remote cloud backend provider for sending and receiving files to and from
  */
 abstract class ProviderService extends Component implements ProviderInterface
@@ -56,7 +57,7 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Provider is configured
-     * 
+     *
      * @return boolean whether this provider is properly configured
      * @since 1.1.0
      */
@@ -67,7 +68,7 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * User is authenticated with the provider
-     * 
+     *
      * @return boolean
      * @since 1.1.0
      */
@@ -79,7 +80,7 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Return the remote database filenames
-     * 
+     *
      * @return array An array of label/filename objects
      * @since 1.0.0
      */
@@ -91,7 +92,7 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Return the remote volume filenames
-     * 
+     *
      * @return array An array of label/filename objects
      * @since 1.0.0
      */
@@ -103,7 +104,7 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Push database to remote provider
-     * 
+     *
      * @return string The filename of the newly created Remote Sync
      * @since 1.0.0
      */
@@ -133,7 +134,7 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Push all volumes to remote provider
-     * 
+     *
      * @return string The filename of the newly created synced file
      * @return null If no volumes exist
      * @since 1.0.0
@@ -191,7 +192,7 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Pull and restore remote database file
-     * 
+     *
      * @param string $filename the file to restore
      */
     public function pullDatabase($filename)
@@ -233,9 +234,9 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Pull Volume
-     * 
+     *
      * Pull and restore a particular remote volume .zip file.
-     * 
+     *
      * @param string The file to restore
      * @since 1.0.0
      */
@@ -286,9 +287,9 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Delete Database
-     * 
+     *
      * Delete a remote database .sql file
-     * 
+     *
      * @param string The filename to delete
      * @since 1.0.0
      */
@@ -299,9 +300,9 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Delete Volume
-     * 
+     *
      * Delete a remote volume .zip file
-     * 
+     *
      * @param string The filename to delete
      * @since 1.0.0
      */
@@ -312,10 +313,10 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Copy Volume Files To Tmp
-     * 
+     *
      * Copy all files across all volumes to a local temporary directory, ready
      * to be zipped.
-     * 
+     *
      * @return bool if the copy was successful
      */
     private function copyVolumeFilesToTmp($tmpDir): bool
@@ -365,9 +366,9 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Create volumes zip
-     * 
+     *
      * Generates a temporary zip file of all volumes
-     * 
+     *
      * @param string $filename the filename to give the new zip
      * @return string $path the temporary path to the new zip file
      * @since 1.0.0
@@ -385,10 +386,10 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Restore Volumes Zip
-     * 
-     * Unzips volumes to a temporary path and then moves them to the "web" 
+     *
+     * Unzips volumes to a temporary path and then moves them to the "web"
      * folder.
-     * 
+     *
      * @param string $path the path to the zip file to restore
      * @since 1.0.0
      */
@@ -428,10 +429,10 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Create Database Dump
-     * 
+     *
      * Uses the underlying Craft 3 "backup/db" function to create a new database
      * backup in local folder.
-     * 
+     *
      * @param string The file name to give the new backup
      * @return string The file path to the new database dump
      * @since 1.0.0
@@ -445,11 +446,11 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Create Filename
-     * 
+     *
      * Create a unique filename for a backup file. Based on getBackupFilePath():
-     * 
+     *
      * https://github.com/craftcms/cms/tree/master/src/db/Connection.php
-     * 
+     *
      * @return string The unique filename
      * @since 1.0.0
      */
@@ -457,18 +458,26 @@ abstract class ProviderService extends Component implements ProviderInterface
     {
         $currentVersion = 'v' . Craft::$app->getVersion();
         $systemName = FileHelper::sanitizeFilename(Craft::$app->getSystemName(), ['asciiOnly' => true]);
-        $systemEnv = Craft::$app->env;
+
+        // We use the environment variable directly instead of app->env. This
+        // is because app->env gets set to the domain name when the env var
+        // is missing, which breaks our formatting for the filename
+        $systemEnv = App::env('CRAFT_ENVIRONMENT') ?: false;
+        if ($systemEnv == false) {
+            $systemEnv = "unknown";
+        }
+
         $filename = ($systemName ? $systemName . '__' : '') . ($systemEnv ? $systemEnv . '__' : '') . gmdate('ymd_His') . '__' . strtolower(StringHelper::randomString(10)) . '__' . $currentVersion;
         return mb_strtolower($filename);
     }
 
     /**
      * Create Tmp Dir Name
-     * 
+     *
      * Create a random temporary directory path
-     * 
+     *
      * NOTE: This doesn't actually create the directory
-     * 
+     *
      * @since 1.1.0
      * @return string a path to a random directory
      */
@@ -478,9 +487,9 @@ abstract class ProviderService extends Component implements ProviderInterface
     }
 
     /**
-     * Generate Temporary Zip Path 
-     * 
-     * Note: This doesn't actually create the zip file, just the path. 
+     * Generate Temporary Zip Path
+     *
+     * Note: This doesn't actually create the zip file, just the path.
      */
     private function createTmpZipPath($filename): string
     {
@@ -489,10 +498,10 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Get Local Directory
-     * 
+     *
      * Return (or creates) the local directory we use to store temporary files.
      * This is a separate folder to the default Craft backup folder.
-     * 
+     *
      * @return string The path to the local directory
      * @since 1.0.0
      */
@@ -507,9 +516,9 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Filter By Extension
-     * 
+     *
      * Filter an array of filenames by their extension (.sql or .zip)
-     * 
+     *
      * @param string The file extension to filter by
      * @return array The filtered filenames
      */
@@ -526,9 +535,9 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Get Settings
-     * 
+     *
      * This gives any implementing classes the ability to adjust settings
-     * 
+     *
      * @since 1.0.0
      * @return object settings
      */
@@ -539,7 +548,7 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Remove Directory
-     * 
+     *
      */
     private function rmDir($dir)
     {
@@ -551,7 +560,7 @@ abstract class ProviderService extends Component implements ProviderInterface
 
     /**
      * Remote Path
-     * 
+     *
      */
     private function rmPath($path)
     {
