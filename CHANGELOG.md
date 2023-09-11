@@ -6,9 +6,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## 4.1.1 - 2023-09
 
+### Fixed
+
+- Updated the regex for filenames to include ' and _ (occasionally included in system names). See [Issue #19](https://github.com/weareferal/craft-remote-core/issues/19).
+
 ### Added
 
-- Better handling of default environment when creating filename. See [ssue #54](https://github.com/weareferal/craft-remote-sync/issues/54).
+- Better handling of default environment when creating filename. See [Issue #54](https://github.com/weareferal/craft-remote-sync/issues/54).
 
 ## 4.1.0 - 2022-10-05
 
