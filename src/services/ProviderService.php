@@ -468,7 +468,11 @@ abstract class ProviderService extends Component implements ProviderInterface
         }
 
         $filename = ($systemName ? $systemName . '__' : '') . ($systemEnv ? $systemEnv . '__' : '') . gmdate('ymd_His') . '__' . strtolower(StringHelper::randomString(10)) . '__' . $currentVersion;
-        return mb_strtolower($filename);
+        $filename = mb_strtolower($filename);
+
+        Craft::info("Creating file name: ".$filename, "remote-core");
+
+        return $filename;
     }
 
     /**

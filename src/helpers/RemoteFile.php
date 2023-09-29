@@ -35,6 +35,8 @@ class RemoteFile
 
     public function __construct($filename, $size)
     {
+        Craft::info("Creating remote file object from path: ".$filename, "remote-core");
+
         // Extract values from filename
         preg_match(RemoteFile::$regex, $filename, $matches);
         if (count($matches) <= 0) {
