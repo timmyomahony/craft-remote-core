@@ -538,7 +538,7 @@ abstract class ProviderService extends Component implements ProviderInterface
         $filtered_remote_files = [];
         foreach ($remote_files as $remote_file) {
             if (substr($remote_file->filename, -strlen($extension)) === $extension) {
-                Craft::info($remote_file->filename . " (flitered)", "remote-core");
+                Craft::info($remote_file->filename . " (filtered)", "remote-core");
                 array_push($filtered_remote_files, $remote_file);
             }
         }

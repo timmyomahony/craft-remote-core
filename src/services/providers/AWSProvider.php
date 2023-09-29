@@ -51,7 +51,6 @@ class AWSProvider extends ProviderService
      */
     public function list($filterExtension): array
     {
-        Craft::info("AWS: Listing files", "remote-core");
         $client = $this->getClient();
         $kwargs = [
             'Bucket' => $this->getBucketName(),
@@ -69,7 +68,6 @@ class AWSProvider extends ProviderService
 
         $remote_files = [];
         foreach ($files as $file) {
-            Craft::info("AWS: " . $file['Key'] . " (unflitered)", "remote-core");
             array_push($remote_files, new RemoteFile(basename($file['Key']), $file['Size']));
         }
 
@@ -92,7 +90,6 @@ class AWSProvider extends ProviderService
         $pathInfo = pathinfo($path);
         $key = $this->getPrefixedKey($pathInfo['basename']);
 
-        Craft::info("AWS: Pushing file to provider", "remote-core");
         Craft::info("AWS: Local path: " . $path, "remote-core");
         Craft::info("AWS: Remote path: " . $key, "remote-core");
 
@@ -117,7 +114,6 @@ class AWSProvider extends ProviderService
         $client = $this->getClient();
         $key = $this->getPrefixedKey($key);
 
-        Craft::info("AWS: Pulling file from provider", "remote-core");
         Craft::info("AWS: Remote path: " . $key, "remote-core");
         Craft::info("AWS: Local path: " . $localPath, "remote-core");
 
