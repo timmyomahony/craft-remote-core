@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 4.1.1 - 2023-09-29
+
+### Fixed
+
+- Updated the regex for filenames to include ' and _ (occasionally included in system names). See [Issue #19](https://github.com/weareferal/craft-remote-core/issues/19).
+
+### Added
+
+- Better handling of default environment when creating filename. See [Issue #54](https://github.com/weareferal/craft-remote-sync/issues/54).
+- Additional logging to help with debugging user issues.
+
 ## 4.1.0 - 2022-10-05
 
 ### Added
