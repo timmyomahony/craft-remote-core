@@ -15,11 +15,11 @@ use weareferal\remotecore\helpers\RemoteFile;
 
 /**
  * AWS Provider
- * 
+ *
  * A provider for use with Amazon AWS S3. This class can also be used to
  * implement other providers that use the S3 API footproint, like Digital
  * Ocean.
- * 
+ *
  * @since 1.0.0
  */
 class AWSProvider extends ProviderService
@@ -28,7 +28,7 @@ class AWSProvider extends ProviderService
 
     /**
      * Provider is configured
-     * 
+     *
      * @return boolean whether this provider is properly configured
      * @since 1.1.0
      */
@@ -44,13 +44,14 @@ class AWSProvider extends ProviderService
 
     /**
      * Return S3 keys
-     * 
+     *
      * @param string $extension The file extension to filter the results by
      * @return array[string] An array of keys returned from S3
      * @since 1.0.0
      */
     public function list($filterExtension): array
     {
+        Craft::info("AWS: Listing files", "remote-core");
         $client = $this->getClient();
         $kwargs = [
             'Bucket' => $this->getBucketName(),
@@ -62,11 +63,13 @@ class AWSProvider extends ProviderService
 
         $files = $response['Contents'];
         if (!$files) {
+            Craft::info("AWS: No files exist", "remote-core");
             return [];
         }
 
         $remote_files = [];
         foreach ($files as $file) {
+            Craft::info("AWS: " . $file['Key'] . " (unflitered)", "remote-core");
             array_push($remote_files, new RemoteFile(basename($file['Key']), $file['Size']));
         }
 
@@ -79,7 +82,7 @@ class AWSProvider extends ProviderService
 
     /**
      * Push a file path to S3
-     *  
+     *
      * @param string $path The full filesystem path to file
      * @since 1.0.0
      */
@@ -89,9 +92,9 @@ class AWSProvider extends ProviderService
         $pathInfo = pathinfo($path);
         $key = $this->getPrefixedKey($pathInfo['basename']);
 
-        Craft::debug("AWS: Pushing file to provider", "remote-core");
-        Craft::debug("AWS: Local path: " . $path, "remote-core");
-        Craft::debug("AWS: Remote path: " . $key, "remote-core");
+        Craft::info("AWS: Pushing file to provider", "remote-core");
+        Craft::info("AWS: Local path: " . $path, "remote-core");
+        Craft::info("AWS: Remote path: " . $key, "remote-core");
 
         try {
             $uploader = new MultipartUploader($client, $path, [
@@ -106,7 +109,7 @@ class AWSProvider extends ProviderService
 
     /**
      * Pull a remote S3 file
-     * 
+     *
      * @since 1.0.0
      */
     public function pull($key, $localPath)
@@ -114,10 +117,10 @@ class AWSProvider extends ProviderService
         $client = $this->getClient();
         $key = $this->getPrefixedKey($key);
 
-        Craft::debug("AWS: Pulling file from provider", "remote-core");
-        Craft::debug("AWS: Remote path: " . $key, "remote-core");
-        Craft::debug("AWS: Local path: " . $localPath, "remote-core");
-    
+        Craft::info("AWS: Pulling file from provider", "remote-core");
+        Craft::info("AWS: Remote path: " . $key, "remote-core");
+        Craft::info("AWS: Local path: " . $localPath, "remote-core");
+
         try {
             $client->getObject([
                 'Bucket' => $this->getBucketName(),
@@ -133,7 +136,7 @@ class AWSProvider extends ProviderService
 
     /**
      * Delete a remote S3 key
-     * 
+     *
      * @since 1.0.0
      */
     public function delete($key)
@@ -156,7 +159,7 @@ class AWSProvider extends ProviderService
 
     /**
      * Return the AWS key, including any prefix folders
-     * 
+     *
      * @param string $key The key for the key
      * @return string The prefixed key
      * @since 1.0.0
@@ -171,7 +174,7 @@ class AWSProvider extends ProviderService
 
     /**
      * Return a useable S3 client object
-     * 
+     *
      * @return S3Client The S3 client object
      * @since 1.0.0
      */
@@ -194,8 +197,8 @@ class AWSProvider extends ProviderService
 
     /**
      * Get endpoint
-     * 
-     * If using a non-AWS endpoint (like Digital Ocean) we specify the 
+     *
+     * If using a non-AWS endpoint (like Digital Ocean) we specify the
      * endpoint used in the client here
      */
     protected function getEndpoint(): ?string
@@ -204,28 +207,28 @@ class AWSProvider extends ProviderService
     }
 
     protected function getAccessKey(): ?string {
-        return Craft::parseEnv($this->plugin->settings->s3AccessKey); 
+        return Craft::parseEnv($this->plugin->settings->s3AccessKey);
     }
 
     protected function getSecretKey(): ?string {
-        return Craft::parseEnv($this->plugin->settings->s3SecretKey); 
+        return Craft::parseEnv($this->plugin->settings->s3SecretKey);
     }
 
     protected function getRegionName(): ?string {
-        return Craft::parseEnv($this->plugin->settings->s3RegionName); 
+        return Craft::parseEnv($this->plugin->settings->s3RegionName);
     }
 
     protected function getBucketName(): ?string {
-        return Craft::parseEnv($this->plugin->settings->s3BucketName); 
+        return Craft::parseEnv($this->plugin->settings->s3BucketName);
     }
 
     protected function getBucketPath(): ?string {
-        return Craft::parseEnv($this->plugin->settings->s3BucketPath); 
+        return Craft::parseEnv($this->plugin->settings->s3BucketPath);
     }
 
     /**
      * Create a more user-friendly error message from AWS
-     * 
+     *
      * @param AwsException $exception The exception
      * @return string An client-friendly string
      * @since 1.0.0
