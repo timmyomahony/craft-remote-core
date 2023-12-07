@@ -7,7 +7,7 @@ use craft\base\Model;
 
 /**
  * Common plugin settings
- *  
+ *
  */
 abstract class Settings extends Model
 {
@@ -78,7 +78,7 @@ abstract class Settings extends Model
         return [
             // Provider details should only run when that provider is selected
             [
-                ['s3AccessKey', 's3SecretKey', 's3BucketName', 's3RegionName'],
+                ['s3BucketName', 's3RegionName'],
                 'required',
                 'when' => function ($model) {
                     return $model->cloudProvider == 's3' & $model->enabled == 1;
@@ -118,13 +118,13 @@ abstract class Settings extends Model
                 }
             ],
             [
-                ['otherS3AccessKey', 'otherS3SecretKey', 'otherS3BucketName', 'otherS3RegionName', 'otherS3Endpoint'],
+                ['otherS3BucketName', 'otherS3RegionName', 'otherS3Endpoint'],
                 'required',
                 'when' => function ($model) {
                     return $model->cloudProvider == 'other-s3' & $model->enabled == 1;
                 }
             ],
-            
+
             [
                 [
                     'cloudProvider',
@@ -141,7 +141,7 @@ abstract class Settings extends Model
                 ['useQueue', 'hideDatabases', 'hideVolumes'],
                 'boolean'
             ],
-            // This seems like a poor API design in Yii 2. We want to show a 
+            // This seems like a poor API design in Yii 2. We want to show a
             // validation when a user hides both the database and volumes. You
             //  can't create custom validators that run on two separate fields
             // (as it would run twice)

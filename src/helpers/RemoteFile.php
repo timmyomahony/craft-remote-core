@@ -28,10 +28,8 @@ class RemoteFile
     // - Random string
     // - Version (captured)
     // - Extension
-    //
-    // https://regex101.com/r/yyAtKC/3
     private static $legacyRegex = '/^(?:[a-zA-Z0-9\-]+)\_(?:([a-zA-Z0-9\-]+)\_)?(\d{6}\_\d{6})\_(?:[a-zA-Z0-9]+)\_(?:([va-zA-Z0-9\.\-]+))\.(?:\w{2,10})$/';
-    private static $regex = '/^(?:[a-zA-Z0-9\_\-\']+)\_\_([a-zA-Z0-9\-]+)\_\_(\d{6}\_\d{6})\_\_(?:[a-zA-Z0-9]+)\_\_([va-zA-Z0-9\.\-]+)\.(?:\w{2,10})/';
+    private static $regex = '/^(?:.+)\_\_(.+)\_\_(\d{6}\_\d{6})\_\_(?:.+)\_\_([va-zA-Z0-9\.\-]+)\.(?:\w{2,10})/';
 
     public function __construct($filename, $size)
     {
