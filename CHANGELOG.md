@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 4.1.2 - 2023-10-30
+## 4.1.2 - 2023-12-07
+
+### Added
+
+- Merged support for IAM profiles. See [Issue #44](https://github.com/timmyomahony/craft-remote-backup/issues/44).
 
 ### Fixed
 
