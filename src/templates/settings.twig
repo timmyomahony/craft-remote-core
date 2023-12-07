@@ -41,7 +41,6 @@
         suggestEnvVars: true,
         suggestAliases: true,
         value: settings.s3AccessKey,
-        required: (settings.cloudProvider == 's3'),
         type: 'password',
         errors: settings.getErrors('s3AccessKey'),
         warning: configWarning('s3AccessKey', pluginHandle)
@@ -55,7 +54,6 @@
         suggestEnvVars: true,
         suggestAliases: true,
         value: settings.s3SecretKey,
-        required: (settings.cloudProvider == 's3'),
         type: 'password',
         errors: settings.getErrors('s3SecretKey'),
         warning: configWarning('s3SecretKey', pluginHandle)
@@ -241,7 +239,7 @@
         value: settings.googleDriveFolderId,
         errors: settings.getErrors('googleDriveFolderId'),
         warning: configWarning('googleDriveFolderId', pluginHandle)
-    }) }}    
+    }) }}
 
     {% if isConfigured and not isAuthenticated %}
         <div>
