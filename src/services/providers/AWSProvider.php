@@ -66,7 +66,9 @@ class AWSProvider extends ProviderService
 
         $remote_files = [];
         foreach ($files as $file) {
-            array_push($remote_files, new RemoteFile(basename($file['Key']), $file['Size']));
+            if ($file['StorageClass'] == "STANDARD") {
+                array_push($remote_files, new RemoteFile(basename($file['Key']), $file['Size']));
+            }
         }
 
         if ($filterExtension) {
