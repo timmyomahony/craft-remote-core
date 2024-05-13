@@ -126,7 +126,7 @@ abstract class ProviderService extends Component implements ProviderInterface
         }
 
         if (!property_exists($settings, 'keepLocal') || !$settings->keepLocal) {
-            Craft::error('Deleting local database zip file:' . $path, 'remote-core');
+            Craft::info('Deleting local database zip file:' . $path, 'remote-core');
             $this->rmPath($path);
         }
 
