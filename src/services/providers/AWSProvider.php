@@ -56,7 +56,10 @@ class AWSProvider extends ProviderService
         if ($this->getBucketPath() !== null) {
             $kwargs['Prefix'] = $this->getBucketPath();
         }
+        Craft::info("Listing AWS objects");
+        Craft::info($kwargs, "remote-core");
         $response = $client->listObjects($kwargs);
+        
 
         $files = $response['Contents'];
         if (!$files) {
@@ -66,7 +69,10 @@ class AWSProvider extends ProviderService
 
         $remote_files = [];
         foreach ($files as $file) {
-            array_push($remote_files, new RemoteFile(basename($file['Key']), $file['Size']));
+            if ($file['StorageClass'] == "STANDARD" && $file['Size'] > 0) {
+                Craft::info("File:".$file['Key'] ,"remote-core");
+                array_push($remote_files, new RemoteFile(basename($file['Key']), $file['Size']));
+            }
         }
 
         if ($filterExtension) {
