@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Fixed
 
 - Fixed file listing issue with AWS. See Remote Backup [Issue #54](https://github.com/timmyomahony/craft-remote-backup/issues/54) and Remote Core [PR #24](https://github.com/timmyomahony/craft-remote-core/pull/24)
+- Cleaned up logging. See Remote Backup [Issue #59](https://github.com/timmyomahony/craft-remote-backup/issues/59) and Remote Core [PR #25](https://github.com/timmyomahony/craft-remote-core/pull/25)
 
 ## 4.1.2 - 2023-12-07
 
@@ -23,7 +24,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Fixed
 
 - Simplified the regex to accept all characters in the system name & env. Hopefully avoiding further interface errors. See [Issue #49](https://github.com/timmyomahony/craft-remote-backup/issues/49)
-- Cleaned up logging. See Remote Backup [Issue #59](https://github.com/timmyomahony/craft-remote-backup/issues/59) and Remote Core [PR #25](https://github.com/timmyomahony/craft-remote-core/pull/25)
 
 ## 4.1.1 - 2023-09-29
 
