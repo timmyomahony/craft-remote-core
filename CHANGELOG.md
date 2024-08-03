@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 5.0.0 - 2024-08-03
+
+### Added
+
+- Craft 5 support.
+
+### Fixed
+
+- Fixed file listing issue with AWS. See Remote Backup [Issue #54](https://github.com/timmyomahony/craft-remote-backup/issues/54) and Remote Core [PR #24](https://github.com/timmyomahony/craft-remote-core/pull/24)
+
 ## 4.1.2 - 2023-12-07
 
 ### Added
